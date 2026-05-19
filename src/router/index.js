@@ -33,12 +33,13 @@ const routes = [
 ];
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory('/sharepoint-clone/'), // 👈 adiciona o base
     routes
 });
 
 router.beforeEach(async (to, from, next) => {
     if (to.meta.requiresAuth) {
+        await authService._ready;
         const account = authService.getAccount();
         if (!account) {
             await authService.login();
