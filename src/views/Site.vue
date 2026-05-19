@@ -109,16 +109,18 @@
             <v-row class="mt-6" v-if="!loadingFolder && folderData.length > 0 && isMobile">
                 <v-col v-for="(item, index) in folderData" :key="index" cols="6" sm="4" md="3" lg="2">
                     <!-- Card principal com hover e ação de clique -->
-                    <v-menu>
+                    <v-bottom-sheet
+                        :model-value="openMenuIndex === index"
+                        @update:model-value="val => { if (!val) openMenuIndex = null }"
+                    >
                         <template #activator="{ props }">
                             <v-card variant="elevated" v-bind="props"
                                 class="pa-2 d-flex flex-column align-center justify-center text-center cursor-pointer item-card fill-height"
-                                @click="handleClick(item)"
-                                @touchstart="startLongPress(item)"
+                                @click="handleClick(item)" @touchstart="startLongPress(item, index)"
                                 @touchend="cancelLongPress" @touchmove="cancelLongPress">
                                 <!-- Ícone Grande Dinâmico -->
                                 <v-card-title class="d-flex justify-end w-100 pa-0">
-                                    <v-btn v-bind="props">
+                                    <v-btn class="elevation-0" v-bind="props">
                                         <v-icon class="">mdi-dots-vertical</v-icon>
                                     </v-btn>
                                 </v-card-title>
@@ -146,7 +148,7 @@
                                 <span>{{ opcao.label }}</span>
                             </v-list-item-title>
                         </v-list-item>
-                    </v-menu>
+                    </v-bottom-sheet>
 
                 </v-col>
             </v-row>
@@ -161,6 +163,7 @@ import { authService } from '../auth/authService';
 export default {
     name: 'SiteDetails',
     data: () => ({
+        openMenuIndex: null,
         timer: null,
         longPressed: false,
         folderData: null,
@@ -222,23 +225,18 @@ export default {
 
     methods: {
         handleClick(item) {
-    if (this.longPressed) {
-        this.longPressed = false
-        return // bloqueia navegação
-    }
-    this.fetchSubFolders(item.ServerRelativeUrl)
-},
-        startLongPress(item) {
+            if (this.longPressed) {
+                this.longPressed = false
+                return // bloqueia navegação
+            }
+            this.fetchSubFolders(item.ServerRelativeUrl)
+        },
+        startLongPress(item, index) {
             this.longPressed = false
-
             this.timer = setTimeout(() => {
-
                 this.longPressed = true
-
                 navigator.vibrate?.(50)
-
-                item.menu = true
-
+                this.openMenuIndex = index // 👈 abre o menu do item certo
             }, 500)
         },
 
