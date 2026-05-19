@@ -258,9 +258,20 @@ export default {
         handleClick(item) {
             if (this.longPressed) {
                 this.longPressed = false
-                return // bloqueia navegação
+                return
             }
-            this.fetchSubFolders(item.ServerRelativeUrl)
+
+            if (item.tipo === 'arquivo') {
+                this.$router.push({
+                    name: 'FileViewer',
+                    query: {
+                        path: item.ServerRelativeUrl,
+                        name: item.Name
+                    }
+                })
+            } else {
+                this.fetchSubFolders(item.ServerRelativeUrl)
+            }
         },
         startLongPress(item, index) {
             this.longPressed = false
@@ -360,6 +371,7 @@ export default {
                         }
                     });
                 }
+                console.log("Conteúdo da pasta:", this.folderData);
             } catch (error) {
                 this.folderData = [];
                 console.error("Erro ao acessar conteúdo:", error);
