@@ -108,48 +108,79 @@
             <!-- Grid de Pastas e Arquivos -->
             <v-row class="mt-6" v-if="!loadingFolder && folderData.length > 0 && isMobile">
                 <v-col v-for="(item, index) in folderData" :key="index" cols="6" sm="4" md="3" lg="2">
-                    <!-- Card principal com hover e ação de clique -->
-                    <v-bottom-sheet
-                        :model-value="openMenuIndex === index"
-                        @update:model-value="val => { if (!val) openMenuIndex = null }"
-                    >
-                        <template #activator="{ props }">
-                            <v-card variant="elevated" v-bind="props"
+
+                    <!-- Bottom Sheet — aberto pelo toque longo via openMenuIndex -->
+                    <v-bottom-sheet :model-value="openMenuIndex === index"
+                        @update:model-value="val => { if (!val) openMenuIndex = null }">
+
+                        <template #activator="{ props: sheetProps }">
+                            <v-card variant="elevated" v-bind="sheetProps"
                                 class="pa-2 d-flex flex-column align-center justify-center text-center cursor-pointer item-card fill-height"
-                                @click="handleClick(item)" @touchstart="startLongPress(item, index)"
+                                @click.stop="handleClick(item)" @touchstart="startLongPress(item, index)"
                                 @touchend="cancelLongPress" @touchmove="cancelLongPress">
-                                <!-- Ícone Grande Dinâmico -->
+
+                                <!-- Botão de menu com v-menu próprio -->
                                 <v-card-title class="d-flex justify-end w-100 pa-0">
-                                    <v-btn class="elevation-0" v-bind="props">
-                                        <v-icon size="25" class="">mdi-dots-vertical</v-icon> 
-                                    </v-btn>
+                                    <v-menu>
+                                        <template #activator="{ props: menuProps }">
+                                            <v-btn class="elevation-0" v-bind="menuProps" @click.stop>
+                                                <v-icon size="25">mdi-dots-vertical</v-icon>
+                                            </v-btn>
+                                        </template>
+                                        <v-list>
+                                            <v-list-item
+                                                v-for="opcao in item.tipo === 'pasta' ? opcoesPasta : opcoesArquivo"
+                                                :key="opcao.label" @click="opcao.acao(item)">
+                                                <v-list-item-title class="d-flex ga-3">
+                                                    <v-icon>{{ opcao.icon }}</v-icon>
+                                                    <span>{{ opcao.label }}</span>
+                                                </v-list-item-title>
+                                            </v-list-item>
+                                        </v-list>
+                                    </v-menu>
                                 </v-card-title>
+
                                 <v-icon size="56" :color="item.tipo === 'pasta' ? 'amber-darken-1' : 'blue-accent-2'"
                                     class="mb-3">
                                     {{ item.tipo === 'pasta' ? 'mdi-folder' : 'mdi-file-document-outline' }}
                                 </v-icon>
 
-                                <!-- Nome do Item (Tratado para não quebrar o layout com nomes longos) -->
                                 <div class="text-body-2 font-weight-medium text-truncate w-100 px-1">
                                     {{ item.Name }}
                                 </div>
 
-                                <!-- Subtítulo opcional de metadados se necessário -->
                                 <div class="text-caption text-grey mt-1 text-truncate w-100">
                                     {{ item.tipo === 'pasta' ? 'Pasta' : 'Arquivo' }}
                                 </div>
                             </v-card>
                         </template>
-                        <v-list-item variant="elevated"
-                            v-for="opcao in item.tipo === 'pasta' ? opcoesPasta : opcoesArquivo" :key="opcao.label"
-                            @click="opcao.acao(item)">
-                            <v-list-item-title class="d-flex ga-3">
-                                <v-icon>{{ opcao.icon }}</v-icon>
-                                <span>{{ opcao.label }}</span>
-                            </v-list-item-title>
-                        </v-list-item>
+
+                        <!-- Conteúdo do Bottom Sheet (toque longo) -->
+                        <v-list>
+                            <v-list-item v-for="opcao in item.tipo === 'pasta' ? opcoesPasta : opcoesArquivo"
+                                :key="opcao.label" @click="opcao.acao(item)">
+                                <v-list-item-title class="d-flex ga-3">
+                                    <v-icon>{{ opcao.icon }}</v-icon>
+                                    <span>{{ opcao.label }}</span>
+                                </v-list-item-title>
+                            </v-list-item>
+                        </v-list>
                     </v-bottom-sheet>
 
+                </v-col>
+            </v-row>
+
+            <v-row class="mt-6" v-else-if="loadingFolder && isMobile">
+                <v-col v-for="n in 6" :key="n" cols="6" sm="4" md="3" lg="2">
+                    <v-skeleton-loader type="card" class="border" height="130"></v-skeleton-loader>
+                </v-col>
+            </v-row>
+
+            <!-- Estado Vazio -->
+            <v-row class="mt-6 justify-center" v-else-if="isMobile">
+                <v-col cols="12" class="text-center pa-8">
+                    <v-icon size="64" color="grey-lighten-1" class="mb-2">mdi-folder-open-outline</v-icon>
+                    <div class="text-grey text-body-1">Nenhum arquivo ou pasta encontrado neste diretório.</div>
                 </v-col>
             </v-row>
         </v-sheet>
