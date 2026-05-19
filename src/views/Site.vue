@@ -109,7 +109,7 @@
             <v-row class="mt-6" v-if="!loadingFolder && folderData.length > 0 && isMobile">
                 <v-col v-for="(item, index) in folderData" :key="index" cols="6" sm="4" md="3" lg="2">
                     <!-- Card principal com hover e ação de clique -->
-                    <v-bottom-sheet
+                    <v-menu
                         :model-value="openMenuIndex === index"
                         @update:model-value="val => { if (!val) openMenuIndex = null }"
                     >
@@ -148,7 +148,7 @@
                                 <span>{{ opcao.label }}</span>
                             </v-list-item-title>
                         </v-list-item>
-                    </v-bottom-sheet>
+                    </v-menu>
 
                 </v-col>
             </v-row>
