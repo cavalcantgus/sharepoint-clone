@@ -121,7 +121,7 @@
                                 <!-- Ícone Grande Dinâmico -->
                                 <v-card-title class="d-flex justify-end w-100 pa-0">
                                     <v-btn class="elevation-0" v-bind="props">
-                                        <v-icon class="">mdi-dots-vertical</v-icon>
+                                        <v-icon class="">mdi-dots-vertical</v-icon> 
                                     </v-btn>
                                 </v-card-title>
                                 <v-icon size="56" :color="item.tipo === 'pasta' ? 'amber-darken-1' : 'blue-accent-2'"
