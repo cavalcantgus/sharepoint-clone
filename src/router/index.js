@@ -22,9 +22,13 @@ const routes = [
         component: Site
     },
     {
-        path: '/folder/:siteId/:folderPath*',  // folderPath captura tudo depois
+        path: '/folder/:siteId/:folderPath*',
         name: 'FolderDetails',
         component: Site
+    },
+    {
+        path: '/:pathMatch(.*)*', // 👈 captura / e qualquer rota não mapeada
+        redirect: '/home'         // redireciona pra /home
     }
 ];
 

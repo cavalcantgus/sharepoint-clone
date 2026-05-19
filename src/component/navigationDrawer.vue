@@ -169,7 +169,7 @@ export default {
         },
 
         async listarSites() {
-            const token = await authService.acquireToken();
+            const token = await authService.acquireSharePointToken();
             const { data } = await axios.get('https://graph.microsoft.com/v1.0/sites?search=*', {
                 headers: {
                     'Accept': 'application/json',
@@ -196,8 +196,8 @@ export default {
         },
     },
 
-    mounted() {
-        authService._ready;
+    async mounted() {
+        await authService._ready;
         this.fetchUserProfile();
         this.listarSites();
         this.drawer = !this.isMobile
