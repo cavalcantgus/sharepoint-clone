@@ -38,23 +38,19 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
-    if (to.meta.requiresAuth) {
-        await authService._ready;
-        const account = authService.getAccount();
-        if (!account) {
-            await authService.login();
-            const newAccount = authService.getAccount();
-            if (newAccount) {
-                next();
-            } else {
-                next('/login');
-            }
-        } else {
-            next();
-        }
-    } else {
-        next();
+    if (!to.meta.requiresAuth) {
+        return next();
     }
+
+    await authService._ready;
+
+    const account = authService.getAccount();
+
+    if (!account) {
+        return next('/login');
+    }
+
+    next();
 });
 
 export default router;
