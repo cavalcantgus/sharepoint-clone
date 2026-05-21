@@ -3,7 +3,9 @@ import { defineStore } from 'pinia'
 export const useSiteStore = defineStore('site', {
     state: () => ({
         selectedSite: JSON.parse(localStorage.getItem('selectedSite')) || null,
-        sites: JSON.parse(localStorage.getItem('sites')) || []
+        sites: JSON.parse(localStorage.getItem('sites')) || [],
+        deltaLinks: JSON.parse(localStorage.getItem('deltaLinks')) || {}
+        //  estrutura: { [driveId]: deltaLink }
     }),
     actions: {
         selectSite(site) {
@@ -16,6 +18,13 @@ export const useSiteStore = defineStore('site', {
         },
         getSiteById(siteId) {
             return this.sites.find(site => site.id === siteId) ?? null
+        },
+        setDeltaLink(driveId, deltaLink) {
+            this.deltaLinks[driveId] = deltaLink
+            localStorage.setItem('deltaLinks', JSON.stringify(this.deltaLinks))
+        },
+        getDeltaLink(driveId) {
+            return this.deltaLinks[driveId] ?? null
         }
     }
 })

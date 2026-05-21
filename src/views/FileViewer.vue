@@ -1,15 +1,5 @@
 <template>
     <div class="viewer-container">
-        <v-app-bar elevation="1">
-            <v-btn icon @click="$router.back()">
-                <v-icon>mdi-arrow-left</v-icon>
-            </v-btn>
-            <v-app-bar-title>{{ fileName }}</v-app-bar-title>
-            <v-btn icon @click="download">
-                <v-icon>mdi-download</v-icon>
-            </v-btn>
-        </v-app-bar>
-
         <div class="viewer-content">
             <!-- Loading -->
             <div v-if="loading" class="d-flex justify-center align-center fill-height">
@@ -22,7 +12,7 @@
             </div>
 
             <!-- Imagem -->
-            <div v-else-if="fileType === 'image'" class="d-flex justify-center align-center fill-height">
+            <div v-else-if="fileType === 'image'" class="d-flex justify-center align-center ">
                 <img :src="blobUrl" :alt="fileName" class="viewer-image" />
             </div>
 
@@ -157,21 +147,20 @@ export default {
 
 <style scoped>
 .viewer-container {
-    height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
 .viewer-content {
-    flex: 1;
+    /* flex: 1; */
     overflow: auto;
-    margin-top: 64px;
+    /* margin-top: 64px; */
 }
 
 .viewer-image {
     max-width: 100%;
     max-height: calc(100vh - 80px);
-    object-fit: contain;
+    /* object-fit: contain; */
 }
 
 .viewer-video {

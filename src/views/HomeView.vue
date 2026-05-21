@@ -1,83 +1,54 @@
-<!-- <template>
-    <div class="dashboard-container">
-        <header class="profile-header" v-if="userProfile">
-            <div class="user-info">
-                <div class="avatar">{{ userProfile.displayName?.charAt(0) }}</div>
-                <div>
-                    <h1>Bem-vindo, {{ userProfile.displayName }}</h1>
-                    <p class="email-text">{{ userProfile.mail || userProfile.userPrincipalName }}</p>
-                </div>
-            </div>
-
-            <button @click="fetchSharePointFolder" :disabled="loadingFolder" class="btn-fetch">
-                <span v-if="loadingFolder" class="loader"></span>
-                {{ loadingFolder ? 'Sincronizando...' : 'Acessar Repositório' }}
-            </button>
-        </header>
-
-        <div v-else class="skeleton-loader">
-            <p>Carregando perfil do consultor...</p>
-        </div>
-
-        <hr class="divider" />
-
-        <main class="content-section">
-            <div v-if="folderData && folderData.length" class="folder-grid">
-                <div v-for="item in folderData" :key="item.UniqueId" class="folder-card"
-                    @click="item.tipo === 'pasta' ? fetchSubFolders(item.ServerRelativeUrl) : commentFile(item)">
-                    <div class="icon-wrapper">
-                        <svg v-if="item.tipo === 'pasta'" xmlns="http://www.w3.org/2000/svg" width="48" height="48"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                            stroke-linecap="round" stroke-linejoin="round" class="folder-icon">
-                            <path
-                                d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z">
-                            </path>
-                        </svg>
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                            stroke-linejoin="round" class="file-icon">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                        </svg>
-                    </div>
-                    <span class="folder-name">{{ item.Name }}</span>
-                    <span class="item-type">{{ item.tipo === 'pasta' ? 'Pasta' : 'Arquivo' }}</span>
-                </div>
-            </div>
-
-            <div v-else-if="folderData && folderData.length === 0" class="empty-state">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
-                    stroke="#ccc" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <p>Nenhum diretório encontrado no SharePoint.</p>
-            </div>
-        </main>
-    </div>
-</template> -->
-
-
 <template>
-    <v-layout class="h-screen">
-
-        <v-main class="pa-4">
-            <router-view />
-        </v-main>
-
-    </v-layout>
+    <v-container class="pa-0 pt-4" style="background-color: #98d72d; height: 100vh;">
+        <v-sheet class="secondary-container">
+            <div class="pa-5 pt-6">
+                <div class="d-flex justify-space-between">
+                    <span class="font-weight-bold" style="color: #64748b; font-size: 1.20rem;">Atividades Recentes</span>
+                    <span class="" style="color: #64748b; font-size: 1rem;">Ver tudo</span>
+                </div>
+                <v-row v-for="(item, index) in recentActivities.slice(0, 3)" :key="index"
+                    class="border d-flex align-center flex-row row-item mt-3"> <v-col cols="auto"
+                        class="d-flex align-center justify-center">
+                        <Icon :icon="item.items[item.items.length - 1].isFolder
+                            ? 'ant-design:folder-filled'
+                            : 'ant-design:file-filled'" :color="item.items[item.items.length - 1].isFolder ? '#98d72d' : '#ccc'"
+                            width="30" class="folder-icon" :style="{
+                                filter: item.tipo === 'pasta'
+                                    ? 'drop-shadow(0 6px 4px #6F9D21)'
+                                    : 'drop-shadow(0 6px 4px #888)'
+                            }" />
+                    </v-col>
+                    <v-col>
+                        <div class="d-flex flex-column">
+                            <span class="font-weight-bold" style="color: #476515;">{{ item.items[item.items.length -
+                                1].itemName }}</span>
+                            <span style="color: #577B1A;">{{ item.actionType === 'create' ? 'Criado' : 'Editado' }} por:
+                                <span>{{ item.who }}</span></span>
+                        </div>
+                    </v-col>
+                    <v-col cols="auto">
+                        <v-icon>mdi-chevron-down</v-icon>
+                    </v-col>
+                </v-row>
+            </div>
+        </v-sheet>
+    </v-container>
 </template>
 
 <script>
 import { authService } from '../auth/authService';
-
+import { useSiteStore } from '../stores/siteStore';
 export default {
     name: 'HomeView',
 
     data: () => ({
         userProfile: null,
         folderData: null,
-        loadingFolder: false,        
+        loadingFolder: false,
+        quickAccessItems: [],
+        deltaLinks: {}, // { [driveId]: "https://graph.microsoft.com/v1.0/..." }
+        isSyncing: false,
+        recentActivities: [],
     }),
 
     watch: {
@@ -138,12 +109,193 @@ export default {
                 console.error('Erro ao comentar:', error);
             }
         },
-    },
 
+        async teste() {
+            const token = await authService.acquireToken();
+            const siteStore = useSiteStore();
+            const siteId = "mmmalufconsultoria.sharepoint.com,b64909bd-3f9b-4c8f-8f60-9aa4cf79e086,85441a70-d838-4bbb-b9dc-ebfbbfdd723a";
+
+            const headers = { Authorization: `Bearer ${token}` };
+
+            // percorre recursivamente todos os itens de uma pasta
+            async function getAllItems(driveId, folderId = 'root') {
+                const res = await fetch(
+                    `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${folderId}/children`,
+                    { headers }
+                );
+                const data = await res.json();
+                const items = data.value ?? [];
+
+                // para cada subpasta encontrada, busca os filhos recursivamente
+                const children = await Promise.all(
+                    items
+                        .filter(item => item.folder)
+                        .map(folder => getAllItems(driveId, folder.id))
+                );
+
+                return [...items, ...children.flat()];
+            }
+
+            // 1. lista todos os drives do site
+            const resDrives = await fetch(
+                `https://graph.microsoft.com/v1.0/sites/${siteId}/drives`,
+                { headers }
+            );
+            const { value: drives } = await resDrives.json();
+
+            // 2. processa cada drive em paralelo
+            const results = await Promise.all(
+                drives.map(async (drive) => {
+
+                    // --- DELTA ---
+                    const savedDeltaLink = siteStore.getDeltaLink(drive.id);
+                    const deltaUrl = savedDeltaLink
+                        ?? `https://graph.microsoft.com/v1.0/drives/${drive.id}/root/delta`;
+
+                    const resDelta = await fetch(deltaUrl, { headers });
+                    const dataDelta = await resDelta.json();
+
+                    if (dataDelta['@odata.deltaLink']) {
+                        siteStore.setDeltaLink(drive.id, dataDelta['@odata.deltaLink']);
+                    }
+
+                    const deleted = dataDelta.value.filter(item => item.deleted);
+                    const changed = dataDelta.value.filter(item => !item.deleted);
+                    console.log(`Drive ${drive.name} - Itens alterados:`, changed);
+                    console.log(`Drive ${drive.name} - Itens deletados:`, deleted);
+                    // --- TODOS OS ITENS (recursivo) ---
+                    const allItems = await getAllItems(drive.id);
+
+                    // --- ACTIVITIES por item em paralelo ---
+                    const activitiesByItem = await Promise.all(
+                        allItems.map(async (item) => {
+                            const resAct = await fetch(
+                                `https://graph.microsoft.com/v1.0/drives/${drive.id}/items/${item.id}/activities`,
+                                { headers }
+                            );
+                            const dataAct = await resAct.json();
+                            const rawActivities = dataAct.value ?? [];
+
+                            return rawActivities.map((activity) => {
+                                const action = activity.action;
+                                const who = activity.actor?.user?.displayName
+                                    ?? activity.actor?.user?.email
+                                    ?? 'Desconhecido';
+
+                                let actionType = 'unknown';
+                                if (action.create) actionType = 'create';
+                                if (action.edit) actionType = 'edit';
+                                if (action.delete) actionType = 'delete';
+                                if (action.move) actionType = 'move';
+                                if (action.rename) actionType = 'rename';
+                                if (action.restore) actionType = 'restore';
+                                if (action.share) actionType = 'share';
+
+                                return {
+                                    who,
+                                    actionType,
+                                    itemName: item.name,
+                                    itemId: item.id,
+                                    itemUrl: item.webUrl ?? null,
+                                    isFolder: !!item.folder,
+                                    // caminho completo ex: /Documentos/2026/contrato.pdf
+                                    itemPath: item.parentReference?.path?.replace(/.*root:/, '') ?? '/',
+                                    happenedAt: activity.times?.recordedDateTime ?? null,
+                                    newVersion: action.version?.newVersion ?? null,
+                                    from: action.move?.from ?? action.rename?.oldName ?? null,
+                                    to: action.move?.to ?? action.rename?.newName ?? null,
+                                };
+                            });
+                        })
+                    );
+
+                    const activities = activitiesByItem.flat();
+                    activities.sort((a, b) => new Date(b.happenedAt) - new Date(a.happenedAt));
+
+                    return {
+                        drive: drive.name,
+                        driveId: drive.id,
+                        isFirstSync: !savedDeltaLink,
+                        delta: { changed, deleted },
+                        activities
+                    };
+                })
+            );
+
+            // junta todas as activities de todos os drives
+            const allActivities = results.flatMap(result =>
+                result.activities.map(activity => ({
+                    ...activity,
+                    drive: result.drive,
+                    driveId: result.driveId,
+                }))
+            );
+
+            // agrupa por actionType + happenedAt + who
+            const groupedMap = new Map();
+
+            for (const activity of allActivities) {
+                const key = [
+                    activity.actionType,
+                    activity.happenedAt,
+                    activity.who
+                ].join('|');
+
+                if (!groupedMap.has(key)) {
+                    groupedMap.set(key, {
+                        actionType: activity.actionType,
+                        happenedAt: activity.happenedAt,
+                        who: activity.who,
+
+                        // agregados
+                        drives: new Set(),
+                        items: [],
+                        totalItems: 0,
+                    });
+                }
+
+                const group = groupedMap.get(key);
+
+                group.drives.add(activity.drive);
+
+                group.items.push({
+                    itemId: activity.itemId,
+                    itemName: activity.itemName,
+                    itemPath: activity.itemPath,
+                    itemUrl: activity.itemUrl,
+                    isFolder: activity.isFolder,
+                    from: activity.from,
+                    to: activity.to,
+                    newVersion: activity.newVersion,
+                });
+
+                group.totalItems++;
+            }
+
+            // transforma em array final
+            const groupedActivities = Array.from(groupedMap.values()).map(group => ({
+                ...group,
+                drives: Array.from(group.drives),
+            }));
+
+            // ordena mais recente primeiro
+            groupedActivities.sort(
+                (a, b) => new Date(b.happenedAt) - new Date(a.happenedAt)
+            );
+
+            console.log(groupedActivities);
+            this.recentActivities = groupedActivities;
+        },
+    },
     mounted() {
         authService._ready;
         this.drawer = !this.isMobile
         this.usedByLastDays();
+        this.teste();
+        this._syncInterval = setInterval(() => this.syncRecentItems(), 30_000);
+    },
+    beforeUnmount() {
+        clearInterval(this._syncInterval);
     },
 };
 </script>
@@ -158,6 +310,22 @@ export default {
     --text-muted: #64748b;
     --card-bg: #ffffff;
     --border: #e2e8f0;
+}
+
+.row-item {
+    border-radius: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+    background-color: #fff;
+    padding: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.secondary-container {
+    background-color: #f3f2f2;
+    height: 100%;
+    border-top-left-radius: 34px;
+    border-top-right-radius: 34px;
 }
 
 .dashboard-container {

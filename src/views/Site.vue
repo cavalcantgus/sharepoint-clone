@@ -1,20 +1,15 @@
 <template>
-    <v-container>
-        <v-sheet>
-            <v-row>
+    <v-container style="background-color: #67921E; height: 100vh;">
+        <v-sheet style="background-color: #67921E;">
+            <v-row v-if="!isMobile">
                 <v-col cols="12">
-                    <span class="text-headline-medium">{{ site?.displayName }}</span>
+                    <span class="text-headline-medium" style="color: #fff; font-weight: bold;">{{ site?.displayName }}</span>
                 </v-col>
             </v-row>
-            <v-row class="d-flex align-center">
-                <v-col cols="9" lg="12">
+            <v-row v-if="!isMobile" class="d-flex align-center">
+                <v-col cols="12" lg="12">
                     <v-text-field hide-details prepend-inner-icon="mdi-magnify" variant="outlined" density="compact"
                         placeholder="Buscar pastas ou arquivos"></v-text-field>
-                </v-col>
-                <v-col v-if="isMobile" cols="3" class="d-flex justify-end">
-                    <v-btn variant="outlined" color="primary" class="">
-                        <v-icon size="25">mdi-filter-variant</v-icon>
-                    </v-btn>
                 </v-col>
             </v-row>
             <v-row class="pt-3" no-gutters v-if="!isMobile">
@@ -26,6 +21,17 @@
                 </v-col>
                 <v-col cols="4" lg="2">
                     <v-select class="owner-select" label="Proprietário" variant="outlined" density="compact" />
+                </v-col>
+            </v-row>
+
+             <v-row v-if="isMobile" class="d-flex flex-row justify-space-between mt-2">
+                <v-col cols="auto" class="">
+                    <span class="text-headline-medium" style="color: #fff; font-weight: bold; line-height: 1; font-size: 2.5rem;"> Pastas</span>
+                </v-col>
+                <v-col cols="auto" class="">
+                    <v-btn icon class="bg-transparent elevation-0 d-flex align-start" style="color: #fff;">
+                        <v-icon size="25">mdi-magnify</v-icon>
+                    </v-btn>
                 </v-col>
             </v-row>
 
@@ -106,83 +112,127 @@
             </v-row>
 
             <!-- Grid de Pastas e Arquivos -->
-            <v-row class="mt-6" v-if="!loadingFolder && folderData.length > 0 && isMobile">
-                <v-col v-for="(item, index) in folderData" :key="index" cols="6" sm="4" md="3" lg="2">
+            <v-sheet v-if="isMobile" class="container-folders-mobile">
+                <v-row class="d-flex justify-space-between">
+                    <v-col cols="auto">
+                        <v-btn class="bg-transparent elevation-0" style="color: #476515;">
+                            <v-icon size="25">mdi-filter-variant</v-icon>
+                        </v-btn>
+                    </v-col>
+                    <v-col cols="auto">
+                        <v-btn class="bg-transparent elevation-0" style="color: #476515;">
+                            <v-icon size="25">mdi-view-grid-outline</v-icon>
+                        </v-btn>
+                    </v-col>
+                </v-row>
+                <v-row class="mt-6" v-if="!loadingFolder && folderData.length > 0 && isMobile">
+                    <v-col v-for="(item, index) in folderData" :key="index" cols="12" sm="4" md="3" lg="2">
 
-                    <!-- Bottom Sheet — aberto pelo toque longo via openMenuIndex -->
-                    <v-bottom-sheet :model-value="openMenuIndex === index"
-                        @update:model-value="val => { if (!val) openMenuIndex = null }">
+                        <!-- Bottom Sheet — aberto pelo toque longo via openMenuIndex -->
+                        <v-bottom-sheet :model-value="openMenuIndex === index"
+                            @update:model-value="val => { if (!val) openMenuIndex = null }">
 
-                        <template #activator="{ props: sheetProps }">
-                            <v-card variant="elevated" v-bind="sheetProps"
-                                class="pa-2 d-flex flex-column align-center justify-center text-center cursor-pointer item-card fill-height"
-                                @click.stop="handleClick(item)" @touchstart="startLongPress(item, index)"
-                                @touchend="cancelLongPress" @touchmove="cancelLongPress">
+                            <template #activator="{ props: sheetProps }">
 
-                                <!-- Botão de menu com v-menu próprio -->
-                                <v-card-title class="d-flex justify-end w-100 pa-0">
+                                <v-card v-bind="sheetProps"
+                                    class=" bg-transparent elevation-0 d-flex flex-row align-center justify-start text-center cursor-pointer item-card fill-height"
+                                    @click.stop="handleClick(item)" @touchstart="startLongPress(item, index)"
+                                    @touchend="cancelLongPress" @touchmove="cancelLongPress">
+
+                                    <Icon
+                                        :icon="item.tipo === 'pasta' ? 'ant-design:folder-filled' : 'ant-design:file-filled'"
+                                        width="56"
+                                        :color="item.tipo === 'pasta' ? '#98d72d' : '#ccc'"
+                                        class="mb-3 folder-icon"
+                                        :style="{
+                                            filter: item.tipo === 'pasta'
+                                                ? 'drop-shadow(0 6px 4px #6F9D21)'
+                                                : 'drop-shadow(0 6px 4px #888)'
+                                        }"
+                                    >
+                                    </Icon>
+                                    <!-- Botão de menu com v-menu próprio -->
+                                    <!-- <v-card-title class="d-flex justify-end pa-0 border">
                                     <v-menu>
                                         <template #activator="{ props: menuProps }">
                                             <v-btn class="elevation-0" v-bind="menuProps" @click.stop>
                                                 <v-icon size="25">mdi-dots-vertical</v-icon>
                                             </v-btn>
                                         </template>
-                                        <v-list>
-                                            <v-list-item
-                                                v-for="opcao in item.tipo === 'pasta' ? opcoesPasta : opcoesArquivo"
-                                                :key="opcao.label" @click="opcao.acao(item)">
-                                                <v-list-item-title class="d-flex ga-3">
-                                                    <v-icon>{{ opcao.icon }}</v-icon>
-                                                    <span>{{ opcao.label }}</span>
-                                                </v-list-item-title>
-                                            </v-list-item>
-                                        </v-list>
-                                    </v-menu>
-                                </v-card-title>
+                <v-list>
+                    <v-list-item v-for="opcao in item.tipo === 'pasta' ? opcoesPasta : opcoesArquivo" :key="opcao.label"
+                        @click="opcao.acao(item)">
+                        <v-list-item-title class="d-flex ga-3">
+                            <v-icon>{{ opcao.icon }}</v-icon>
+                            <span>{{ opcao.label }}</span>
+                        </v-list-item-title>
+                    </v-list-item>
+                </v-list>
+                </v-menu>
+                </v-card-title> -->
 
-                                <v-icon size="56" :color="item.tipo === 'pasta' ? 'amber-darken-1' : 'blue-accent-2'"
-                                    class="mb-3">
-                                    {{ item.tipo === 'pasta' ? 'mdi-folder' : 'mdi-file-document-outline' }}
-                                </v-icon>
+                                    <div
+                                        class=" d-flex flex-column align-center justify-center text-start fill-height mx-2">
+                                        <div class="text-body-1 font-weight-medium text-truncate w-100">
+                                            <span style="color: #476515; font-weight: 600; font-size: 1.2rem;">{{
+                                                item.Name }}</span>
+                                        </div>
 
-                                <div class="text-body-2 font-weight-medium text-truncate w-100 px-1">
-                                    {{ item.Name }}
-                                </div>
+                                        <div class="text-caption text-grey text-truncate w-100">
+                                            <!-- Pasta -->
+                                            <template v-if="item.tipo === 'pasta'">
+                                                <span style="color: #577B1A; font-size: 1rem;">
+                                                    {{ item.ItemCount > 1 ? `${item.ItemCount} itens` : '1 item' }}
+                                                </span>
+                                                <span style="color: #577B1A; font-size: 1rem;" class="mx-2">|</span>
+                                                <span style="color: #577B1A; font-size: 1rem;">
+                                                    <template v-if="item.TotalSize === null"> calculando...</template>
+                                                    <template v-else-if="item.TotalSize === -1"> —</template>
+                                                    <template v-else> {{ formatBytes(item.TotalSize) }}</template>
+                                                </span>
+                                            </template>
 
-                                <div class="text-caption text-grey mt-1 text-truncate w-100">
-                                    {{ item.tipo === 'pasta' ? 'Pasta' : 'Arquivo' }}
-                                </div>
-                            </v-card>
-                        </template>
+                                            <!-- Arquivo -->
+                                            <template v-else>
+                                                <span style="color: #577B1A; font-size: 1rem;">
+                                                    {{ formatBytes(parseInt(item.Length)) }}
+                                                </span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </v-card>
+                            </template>
 
-                        <!-- Conteúdo do Bottom Sheet (toque longo) -->
-                        <v-list>
-                            <v-list-item v-for="opcao in item.tipo === 'pasta' ? opcoesPasta : opcoesArquivo"
-                                :key="opcao.label" @click="opcao.acao(item)">
-                                <v-list-item-title class="d-flex ga-3">
-                                    <v-icon>{{ opcao.icon }}</v-icon>
-                                    <span>{{ opcao.label }}</span>
-                                </v-list-item-title>
-                            </v-list-item>
-                        </v-list>
-                    </v-bottom-sheet>
+                            <!-- Conteúdo do Bottom Sheet (toque longo) -->
+                            <v-list>
+                                <v-list-item v-for="opcao in item.tipo === 'pasta' ? opcoesPasta : opcoesArquivo"
+                                    :key="opcao.label" @click="opcao.acao(item)">
+                                    <v-list-item-title class="d-flex ga-3">
+                                        <v-icon>{{ opcao.icon }}</v-icon>
+                                        <span>{{ opcao.label }}</span>
+                                    </v-list-item-title>
+                                </v-list-item>
+                            </v-list>
+                        </v-bottom-sheet>
 
-                </v-col>
-            </v-row>
+                    </v-col>
+                </v-row>
 
-            <v-row class="mt-6" v-else-if="loadingFolder && isMobile">
-                <v-col v-for="n in 6" :key="n" cols="6" sm="4" md="3" lg="2">
-                    <v-skeleton-loader type="card" class="border" height="130"></v-skeleton-loader>
-                </v-col>
-            </v-row>
+                <v-row class="mt-6" v-else-if="loadingFolder && isMobile">
+                    <v-col v-for="n in 6" :key="n" cols="6" sm="4" md="3" lg="2">
+                        <v-skeleton-loader type="card" class="border" height="130"></v-skeleton-loader>
+                    </v-col>
+                </v-row>
 
-            <!-- Estado Vazio -->
-            <v-row class="mt-6 justify-center" v-else-if="isMobile">
-                <v-col cols="12" class="text-center pa-8">
-                    <v-icon size="64" color="grey-lighten-1" class="mb-2">mdi-folder-open-outline</v-icon>
-                    <div class="text-grey text-body-1">Nenhum arquivo ou pasta encontrado neste diretório.</div>
-                </v-col>
-            </v-row>
+                <!-- Estado Vazio -->
+                <v-row class="mt-6 justify-center" v-else-if="isMobile">
+                    <v-col cols="12" class="text-center pa-8">
+                        <v-icon size="64" color="grey-lighten-1" class="mb-2">mdi-folder-open-outline</v-icon>
+                        <div class="text-grey text-body-1">Nenhum arquivo ou pasta encontrado neste diretório.</div>
+                    </v-col>
+                </v-row>
+            </v-sheet>
+
         </v-sheet>
     </v-container>
 </template>
@@ -354,14 +404,13 @@ export default {
 
                 const pastas = foldersData.d.results
                     .filter(f => f.Name !== 'Forms')
-                    .map(f => ({ ...f, tipo: 'pasta' }));
+                    .map(f => ({ ...f, tipo: 'pasta', TotalSize: null })); // null = carregando
 
                 const arquivos = filesData.d.results
                     .map(f => ({ ...f, tipo: 'arquivo' }));
 
                 this.folderData = [...pastas, ...arquivos];
 
-                // Só navega se veio de um clique — evita loop com o watch
                 if (navigate) {
                     this.$router.push({
                         name: 'FolderDetails',
@@ -371,13 +420,47 @@ export default {
                         }
                     });
                 }
-                console.log("Conteúdo da pasta:", this.folderData);
+
+                // 🔥 Busca métricas em background sem travar a UI
+                this.fetchFolderMetrics(pastas, baseUrl, headers);
+
             } catch (error) {
                 this.folderData = [];
                 console.error("Erro ao acessar conteúdo:", error);
             } finally {
                 this.loadingFolder = false;
             }
+        },
+
+        async fetchFolderMetrics(pastas, baseUrl, headers) {
+            await Promise.allSettled(
+                pastas.map(async (pasta) => {
+                    try {
+                        const encodedUrl = encodeURIComponent(pasta.ServerRelativeUrl);
+                        const res = await fetch(
+                            `${baseUrl}/_api/web/GetFolderByServerRelativeUrl('${encodedUrl}')?$expand=StorageMetrics`,
+                            { headers }
+                        );
+                        const data = await res.json();
+                        const totalSize = data.d?.StorageMetrics?.TotalSize ?? 0;
+
+                        // Atualiza reativo o item já renderizado
+                        const item = this.folderData.find(f => f.UniqueId === pasta.UniqueId);
+                        if (item) item.TotalSize = totalSize;
+
+                    } catch {
+                        const item = this.folderData.find(f => f.UniqueId === pasta.UniqueId);
+                        if (item) item.TotalSize = -1; // indica erro
+                    }
+                })
+            );
+        },
+
+        formatBytes(bytes) {
+            if (!bytes) return '0 B';
+            if (bytes < 1024) return `${bytes} Bytes (B)`;
+            if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KiloBytes (KB)`;
+            return `${(bytes / 1048576).toFixed(2)} MegaBytes (MB)`;
         },
     },
 
@@ -389,6 +472,20 @@ export default {
 </script>
 
 <style scoped>
+.container-folders-mobile {
+    height: 100vh;
+    border-top: 12px solid #98d72d;
+    border-bottom: 0px;
+    border-top-left-radius: 34px;
+    border-top-right-radius: 34px;
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-bottom: -16px;
+    padding: 16px;
+    margin-top: 16px;
+    background-color: #f3f2f2;
+}
+
 .clicable-item {
     cursor: pointer;
 }
