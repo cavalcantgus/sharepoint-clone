@@ -1,29 +1,80 @@
 <template>
     <v-container class="pa-0 pt-4" style="background-color: #98d72d; height: 100vh;">
-        <v-sheet class="secondary-container">
+        <v-sheet class="elevation-0 bg-transparent">
+            <v-row class="d-flex justify-center no-gutters ga-2">
+                <v-col cols="3">
+                    <v-card class="elevation-0 d-flex flex-column metric-card align-center pa-2 ga-1">
+                        <Icon width="25" icon="carbon:folder" />
+                        <span class="font-weight-bold">11</span>
+                        <span class="font-weight-semibold">Pastas</span>
+                    </v-card>
+                </v-col>
+                <v-col cols="3">
+                    <v-card class="elevation-0 d-flex flex-column metric-card align-center pa-2 ga-1">
+                        <Icon width="25" icon="bytesize:file" />
+                        <span class="font-weight-bold">48</span>
+                        <span class="font-weight-semibold">Arquivos</span>
+                    </v-card>
+                </v-col>
+                <v-col cols="4">
+                    <v-card class="elevation-0 d-flex flex-column metric-card align-center pa-2 ga-1">
+                        <Icon width="25" icon="material-symbols:comment-outline-rounded" />
+                        <span class="font-weight-bold">8</span>
+                        <span class="font-weight-semibold">Comentários</span>
+                    </v-card>
+                </v-col>
+                <v-col cols="3">
+                    <v-card class="elevation-0 d-flex flex-column metric-card align-center pa-2 ga-1">
+                        <Icon width="25" icon="line-md:account" />
+                        <span class="font-weight-bold">5</span>
+                        <span class="font-weight-semibold">Usuários</span>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </v-sheet>
+        <v-sheet class="secondary-container mt-4">
             <div class="pa-5 pt-6">
                 <div class="d-flex justify-space-between">
-                    <span class="font-weight-bold" style="color: #64748b; font-size: 1.20rem;">Atividades Recentes</span>
+                    <span class="font-weight-bold" style="color: #64748b; font-size: 1.20rem;">Acesso
+                        Rápido</span>
                     <span class="" style="color: #64748b; font-size: 1rem;">Ver tudo</span>
                 </div>
-                <v-row v-for="(item, index) in recentActivities.slice(0, 3)" :key="index"
-                    class="border d-flex align-center flex-row row-item mt-3"> <v-col cols="auto"
-                        class="d-flex align-center justify-center">
-                        <Icon :icon="item.items[item.items.length - 1].isFolder
-                            ? 'ant-design:folder-filled'
-                            : 'ant-design:file-filled'" :color="item.items[item.items.length - 1].isFolder ? '#98d72d' : '#ccc'"
-                            width="30" class="folder-icon" :style="{
-                                filter: item.tipo === 'pasta'
-                                    ? 'drop-shadow(0 6px 4px #6F9D21)'
-                                    : 'drop-shadow(0 6px 4px #888)'
-                            }" />
+
+                <v-row class="d-flex align-center flex-row  mt-3">
+                    <v-col v-for="(item, index) in quickAccess" :key="index" cols="4"
+                        class="d-flex align-center justify-center row-item-1"
+                        @click="testFunc2(item.driveIds, item.items[(item.items.length - 1)].itemPath)">
+                        <div class="d-flex flex-column align-center justify-center text-center" style="height: 60px;">
+                            <Icon color="#fff" width="20" icon="carbon:folder"></Icon>
+                            <span>{{ item.items[item.items.length - 2].itemName }}</span>
+                        </div>
+                    </v-col>
+                </v-row>
+            </div>
+
+            <div class="pa-5 pt-6">
+                <div class="d-flex justify-space-between">
+                    <span class="font-weight-bold" style="color: #64748b; font-size: 1.20rem;">Atividades
+                        Recentes</span>
+                    <span class="" style="color: #64748b; font-size: 1rem;">Ver tudo</span>
+                </div>
+                <v-row v-for="(item, index) in recentActivities.slice(0, 6)" :key="index"
+                    class="border d-flex align-center flex-row row-item mt-3" @click="testFunc(item.instanceId)"> <v-col
+                        cols="auto" class="d-flex align-center justify-center">
+                        <Icon :icon="activityIcon(item.actionType)" width="30" class="folder-icon" :style="{
+                            filter: item.tipo === 'pasta'
+                                ? 'drop-shadow(0 6px 4px #6F9D21)'
+                                : 'drop-shadow(0 6px 4px #888)'
+                        }" />
                     </v-col>
                     <v-col>
                         <div class="d-flex flex-column">
                             <span class="font-weight-bold" style="color: #476515;">{{ item.items[item.items.length -
                                 1].itemName }}</span>
-                            <span style="color: #577B1A;">{{ item.actionType === 'create' ? 'Criado' : 'Editado' }} por:
+                            <span class="font-weight-semibold" style="color: #577B1A;">{{ item.actionType === 'create' ?
+                                'Criado' : 'Editado' }} por:
                                 <span>{{ item.who }}</span></span>
+                            <span style="color: #64748b;">{{ formatDate(item.happenedAt) }}</span>
                         </div>
                     </v-col>
                     <v-col cols="auto">
@@ -49,6 +100,8 @@ export default {
         deltaLinks: {}, // { [driveId]: "https://graph.microsoft.com/v1.0/..." }
         isSyncing: false,
         recentActivities: [],
+        allActivities: [],
+        quickAccess: [],
     }),
 
     watch: {
@@ -64,9 +117,50 @@ export default {
         isMobile() {
             return this.$vuetify.display.smAndDown;
         },
+
+        activityIcon() {
+            return (type) => {
+                switch (type?.toLowerCase()) {
+                    case 'create':
+                        return 'ant-design:plus-circle-filled'
+
+                    case 'delete':
+                        return 'ant-design:delete-filled'
+
+                    case 'edit':
+                        return 'ant-design:edit-filled'
+
+                    case 'move':
+                        return 'icon-park-twotone:move'
+
+                    case 'rename':
+                        return 'ant-design:form-filled'
+
+                    case 'unknown':
+                        return 'ant-design:question-circle-filled'
+
+                    default:
+                        return 'ant-design:file-filled'
+                }
+            }
+        }
     },
 
     methods: {
+
+        formatDate(dateString) {
+            if (!dateString) return '';
+
+            const date = new Date(dateString);
+
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        },
 
         async usedByLastDays() {
             const response = await fetch('https://graph.microsoft.com/v1.0/me/insights/trending', {
@@ -108,6 +202,47 @@ export default {
             } catch (error) {
                 console.error('Erro ao comentar:', error);
             }
+        },
+
+        async testFunc2(driveId, itemPath) {
+            const token = await authService.acquireToken();
+            const headers = { Authorization: `Bearer ${token}` };
+
+            const res = await fetch(
+                `https://graph.microsoft.com/v1.0/drives/${driveId}/root:/${itemPath}`,
+                { headers }
+            );
+            const folder = await res.json();
+
+            const res2 = await fetch(
+                `https://graph.microsoft.com/v1.0/sites/${folder.parentReference.siteId}`,
+                { headers }
+            );
+            const site = await res2.json();
+
+            const url = new URL(folder.webUrl);
+
+            this.$router.push({
+                name: 'FolderDetails',
+                params: {
+                    siteId: site.id,
+                    folderPath: url.pathname // sem encoding nenhum
+                }
+            });
+        },
+
+        testFunc(instanceId) {
+            console.log("AllActivites", this.allActivities)
+            console.log("InstanceId clicado:", instanceId);
+            const group = this.allActivities.find(g => g.instanceId === instanceId);
+
+            if (!group) {
+                console.warn(`Nenhum grupo encontrado para instanceId: ${instanceId}`);
+                return null;
+            }
+
+            console.log(`Grupo encontrado para instanceId ${instanceId}:`, group);
+            return group;
         },
 
         async teste() {
@@ -175,7 +310,7 @@ export default {
                             );
                             const dataAct = await resAct.json();
                             const rawActivities = dataAct.value ?? [];
-
+                            console.log(`Atividades do item ${item.name}:`, item, rawActivities);
                             return rawActivities.map((activity) => {
                                 const action = activity.action;
                                 const who = activity.actor?.user?.displayName
@@ -193,6 +328,7 @@ export default {
 
                                 return {
                                     who,
+                                    action,
                                     actionType,
                                     itemName: item.name,
                                     itemId: item.id,
@@ -225,16 +361,23 @@ export default {
             // junta todas as activities de todos os drives
             const allActivities = results.flatMap(result =>
                 result.activities.map(activity => ({
-                    ...activity,
+                    activity: { ...activity },
                     drive: result.drive,
                     driveId: result.driveId,
                 }))
             );
 
+            this.allActivities = allActivities;
+
             // agrupa por actionType + happenedAt + who
             const groupedMap = new Map();
 
-            for (const activity of allActivities) {
+            for (const activityData of allActivities) {
+
+                const activity = activityData.activity;
+
+                console.log("Atividades: ", activityData);
+
                 const key = [
                     activity.actionType,
                     activity.happenedAt,
@@ -243,12 +386,15 @@ export default {
 
                 if (!groupedMap.has(key)) {
                     groupedMap.set(key, {
+                        instanceId: key,
+                        action: activity.action,
                         actionType: activity.actionType,
                         happenedAt: activity.happenedAt,
                         who: activity.who,
 
                         // agregados
                         drives: new Set(),
+                        driveIds: new Set(),
                         items: [],
                         totalItems: 0,
                     });
@@ -256,7 +402,8 @@ export default {
 
                 const group = groupedMap.get(key);
 
-                group.drives.add(activity.drive);
+                group.drives.add(activityData.drive);
+                group.driveIds.add(activityData.driveId);
 
                 group.items.push({
                     itemId: activity.itemId,
@@ -276,6 +423,7 @@ export default {
             const groupedActivities = Array.from(groupedMap.values()).map(group => ({
                 ...group,
                 drives: Array.from(group.drives),
+                driveIds: Array.from(group.driveIds),
             }));
 
             // ordena mais recente primeiro
@@ -284,9 +432,13 @@ export default {
             );
 
             console.log(groupedActivities);
+
             this.recentActivities = groupedActivities;
+            this.quickAccess = this.recentActivities.slice(0, 3);
+            console.log("Quick Access: ", this.quickAccess)
         },
     },
+
     mounted() {
         authService._ready;
         this.drawer = !this.isMobile
@@ -302,7 +454,15 @@ export default {
 
 
 <style scoped>
-/* Variáveis de Cores Corporativas */
+::v-deep(.metric-card) {
+    background-color: #67921E6d !important;
+    border: 1px solid #67921E4d !important;
+    border-radius: 14px;
+    padding: 16px;
+    color: #fff;
+    font-size: 14px;
+}
+
 :root {
     --primary: #2563eb;
     --bg-body: #f8fafc;
@@ -310,6 +470,17 @@ export default {
     --text-muted: #64748b;
     --card-bg: #ffffff;
     --border: #e2e8f0;
+}
+
+.row-item-1 {
+    border-radius: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+    color: #fff;
+    font-weight: 600;
+    background-color: #67921E;
+    padding: 6px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .row-item {
