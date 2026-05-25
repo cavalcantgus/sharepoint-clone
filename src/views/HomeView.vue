@@ -1,6 +1,6 @@
 <template>
     <v-container class="pa-0 pt-4" style="background-color: #98d72d; height: 100vh;">
-        <v-sheet class="elevation-0 bg-transparent">
+        <v-sheet class="elevation-0 bg-transparent mt-4">
             <v-row class="d-flex justify-center no-gutters ga-2">
                 <v-col cols="3">
                     <v-card class="elevation-0 d-flex flex-column metric-card align-center pa-2 ga-1">
@@ -32,7 +32,7 @@
                 </v-col>
             </v-row>
         </v-sheet>
-        <v-sheet class="secondary-container mt-4">
+        <v-sheet class="secondary-container mt-8">
             <div class="pa-5 pt-6">
                 <div class="d-flex justify-space-between">
                     <span class="font-weight-bold" style="color: #64748b; font-size: 1.20rem;">Acesso
@@ -58,29 +58,49 @@
                         Recentes</span>
                     <span class="" style="color: #64748b; font-size: 1rem;">Ver tudo</span>
                 </div>
-                <v-row v-for="(item, index) in recentActivities.slice(0, 6)" :key="index"
-                    class="border d-flex align-center flex-row row-item mt-3" @click="testFunc(item.instanceId)"> <v-col
-                        cols="auto" class="d-flex align-center justify-center">
-                        <Icon :icon="activityIcon(item.actionType)" width="30" class="folder-icon" :style="{
-                            filter: item.tipo === 'pasta'
-                                ? 'drop-shadow(0 6px 4px #6F9D21)'
-                                : 'drop-shadow(0 6px 4px #888)'
-                        }" />
-                    </v-col>
-                    <v-col>
-                        <div class="d-flex flex-column">
-                            <span class="font-weight-bold" style="color: #476515;">{{ item.items[item.items.length -
-                                1].itemName }}</span>
-                            <span class="font-weight-semibold" style="color: #577B1A;">{{ item.actionType === 'create' ?
-                                'Criado' : 'Editado' }} por:
-                                <span>{{ item.who }}</span></span>
-                            <span style="color: #64748b;">{{ formatDate(item.happenedAt) }}</span>
+                <!-- Substitui o v-row do recentActivities -->
+                <div v-for="(item, index) in recentActivities.slice(0, 3)" :key="index" class="border row-item mt-3">
+                    <!-- Linha clicável -->
+                    <v-row class="d-flex align-center flex-row" @click="toggleExpand(index)" style="cursor: pointer;">
+                        <v-col cols="auto" class="d-flex align-center justify-center">
+                            <Icon :icon="activityIcon(item.actionType)" width="30" class="folder-icon" :style="{
+                                filter: item.tipo === 'pasta'
+                                    ? 'drop-shadow(0 6px 4px #6F9D21)'
+                                    : 'drop-shadow(0 6px 4px #888)'
+                            }" />
+                        </v-col>
+                        <v-col>
+                            <div class="d-flex flex-column">
+                                <span class="font-weight-bold" style="color: #476515;">
+                                    {{ item.items[item.items.length - 1].itemName }}
+                                </span>
+                                <span class="font-weight-semibold" style="color: #577B1A;">
+                                    {{ item.actionType === 'create' ? 'Criado' : 'Editado' }} por:
+                                    <span>{{ item.who }}</span>
+                                </span>
+                                <span style="color: #64748b;">{{ formatDate(item.happenedAt) }}</span>
+                            </div>
+                        </v-col>
+                        <v-col cols="auto">
+                            <v-icon style="transition: transform 0.25s ease;"
+                                :style="expandedIndex === index ? 'transform: rotate(180deg)' : ''">
+                                mdi-chevron-down
+                            </v-icon>
+                        </v-col>
+                    </v-row>
+
+                    <!-- Área de expand — monta aqui -->
+                    <div style="background-color: #f3f2f2; border-radius: 8px; padding: 8px;"
+                        v-if="expandedIndex === index" class="expand-content pa-4 mt-2">
+                        <div v-for="fieldDef in actionFields[item.actionType]" :key="fieldDef.label"
+                            class="d-flex flex-column mb-3 px-2">
+                            <span class="font-weight-bold" style="color: #476515;">
+                                {{ fieldDef.label }}:
+                                <span style="font-weight: 500;">{{ fieldDef.value(item) }}</span>
+                            </span>
                         </div>
-                    </v-col>
-                    <v-col cols="auto">
-                        <v-icon>mdi-chevron-down</v-icon>
-                    </v-col>
-                </v-row>
+                    </div>
+                </div>
             </div>
         </v-sheet>
     </v-container>
@@ -102,6 +122,25 @@ export default {
         recentActivities: [],
         allActivities: [],
         quickAccess: [],
+        expandedIndex: null,
+        actionFields: {
+            create: [
+                { label: 'Caminho', value: (item) => item.items[item.items.length - 1].itemPath },
+                { label: 'Nome', value: (item) => item.items[item.items.length - 1].itemName },
+            ],
+            edit: [
+                { label: 'Caminho', value: (item) => item.items[item.items.length - 1].itemPath },
+            ],
+            rename: [
+                { label: 'Caminho', value: (item) => item.items[item.items.length - 1].itemPath },
+                { label: 'Nome antigo', value: (item) => item.action.rename.oldName },
+                { label: 'Novo nome', value: (item) => item.items[item.items.length - 1].itemName },
+            ],
+            move: [
+                { label: 'Caminho', value: (item) => item.items[item.items.length - 1].itemPath },
+                { label: 'Nome antigo', value: (item) => item.action.move.from },
+                { label: 'Para', value: (item) => item.items.find(i => i.to != null)?.to },],
+        }
     }),
 
     watch: {
@@ -147,6 +186,10 @@ export default {
     },
 
     methods: {
+
+        toggleExpand(index) {
+            this.expandedIndex = this.expandedIndex === index ? null : index
+        },
 
         formatDate(dateString) {
             if (!dateString) return '';

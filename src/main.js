@@ -37,7 +37,7 @@ await msalInstance.initialize();
 const app = createApp(App);
 
 app.config.globalProperties.$msal = msalInstance;
-
+app.config.devtools = false
 app.component('Icon', Icon);
 
 app.use(createPinia()); // ✅

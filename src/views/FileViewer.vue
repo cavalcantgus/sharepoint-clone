@@ -36,6 +36,74 @@
                 <v-btn color="primary" @click="download">Baixar arquivo</v-btn>
             </div>
         </div>
+
+        <v-bottom-app-bar color="white" elevation="4">
+
+    <v-row class="w-100 ma-0 align-center">
+
+        <!-- Download -->
+        <v-col cols="3" class="d-flex justify-center flex-column align-center">
+            <v-btn icon variant="text" @click="download">
+                <v-icon size="x-large">mdi-tray-arrow-down</v-icon>
+                <!-- <v-tooltip activator="parent" location="top">
+                    Baixar
+                </v-tooltip> -->
+            </v-btn>
+            <span style="font-size: 1.20rem;">Baixar</span>
+        </v-col>
+
+        <!-- Compartilhar -->
+        <v-col cols="3" class="d-flex justify-center flex-column align-center">
+            <v-btn icon variant="text" @click="share">
+                <v-icon size="x-large">mdi-comment-outline</v-icon>
+                <!-- <v-tooltip activator="parent" location="top">
+                    Compartilhar
+                </v-tooltip> -->
+                
+            </v-btn>
+            <span style="font-size: 1.20rem;">Comentar</span>
+        </v-col>
+
+        <!-- Compartilhar -->
+        <v-col cols="3" class="d-flex justify-center flex-column align-center">
+            <v-btn icon variant="text" @click="share">
+                <v-icon size="x-large">mdi-share-variant-outline</v-icon>
+                <!-- <v-tooltip activator="parent" location="top">
+                    Compartilhar
+                </v-tooltip> -->
+                
+            </v-btn>
+            <span style="font-size: 1.20rem;">Compartilhar</span>
+        </v-col>
+
+        <!-- Mais opções -->
+        <v-col cols="3" class="d-flex justify-center flex-column align-center">
+            <v-btn icon variant="text">
+                <v-icon size="x-large">mdi-dots-vertical</v-icon>
+
+                <v-menu activator="parent">
+                    <v-list>
+                        <v-list-item
+                            title="Renomear"
+                            prepend-icon="mdi-pencil"
+                            @click="rename"
+                        />
+
+                        <v-list-item
+                            title="Excluir"
+                            prepend-icon="mdi-delete-outline"
+                            base-color="error"
+                            @click="deleteFile"
+                        />
+                    </v-list>
+                </v-menu>
+            </v-btn>
+            <span style="font-size: 1.20rem;">Mais</span>
+        </v-col>
+
+    </v-row>
+
+</v-bottom-app-bar>
     </div>
 </template>
 
