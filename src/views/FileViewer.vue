@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <v-bottom-app-bar color="white" elevation="4">
+        <v-bottom-app-bar color="white" elevation="4" class="pt-2">
 
     <v-row class="w-100 ma-0 align-center">
 
