@@ -114,7 +114,7 @@ export default {
 
     const handleSuccess = (response) => {
       // window.dispatchEvent(new Event('msal:loginSuccess'));
-      router.push('/home');
+      router.push('/site/mmmalufconsultoria.sharepoint.com,b64909bd-3f9b-4c8f-8f60-9aa4cf79e086,85441a70-d838-4bbb-b9dc-ebfbbfdd723a');
     };
 
     const loginWithCredentials = async () => {
