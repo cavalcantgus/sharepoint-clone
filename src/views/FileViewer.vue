@@ -50,7 +50,7 @@
 
         <v-bottom-app-bar style="border-top: 1px solid #ccc ;background-color: #67921E; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;" class="py-2 border context-action pa-0 ma-0 ">
 
-            <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #fff; ">
+            <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #ffffff; ">
 
                 <!-- Download -->
                 <v-col cols="2" class="d-flex justify-center flex-column align-center ga-1">

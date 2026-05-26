@@ -3,12 +3,16 @@
         <v-card rounded="t-xl" class="d-flex flex-column" style="max-height: 75vh;">
 
             <!-- Handle de arraste -->
-            <div class="d-flex justify-center pt-3 pb-1">
+            <div class="d-flex justify-center pt-3 pb-1" @touchstart="dragStart" @touchmove="dragMove"
+                @touchend="dragEnd" style="cursor: grab; touch-action: none;">
                 <div style="width: 40px; height: 4px; border-radius: 2px; background: #e0e0e0;" />
             </div>
 
             <!-- Cabeçalho -->
             <v-card-title class="d-flex align-center justify-space-between px-4 pb-2">
+                <v-btn icon class="elevation-0" @click="this.$emit('update:modelValue', false)">
+                    <v-icon>mdi-arrow-left</v-icon>
+                </v-btn>
                 <span class="text-h6">Comentários</span>
                 <v-chip v-if="comments?.length > 0" size="small" color="primary" variant="tonal">
                     {{ comments?.length || 0 }}
@@ -105,6 +109,7 @@ export default {
     emits: ['update:modelValue'],
 
     data: () => ({
+        dragStartY: 0,
         isOpen: false,
         newComment: '',
         loadingComments: false,
@@ -130,6 +135,19 @@ export default {
 
     methods: {
         // ─── API ──────────────────────────────────────────────────────────────
+
+        dragStart(e) {
+            this.dragStartY = e.touches[0].clientY
+        },
+        dragMove(e) {
+            // opcional: animar enquanto arrasta
+        },
+        dragEnd(e) {
+            const delta = e.changedTouches[0].clientY - this.dragStartY
+            if (delta > 80) { // arrastou 80px pra baixo → fecha
+                this.$emit('update:modelValue', false)
+            }
+        },
 
         async fetchComments() {
             if (!this.fileId) return
