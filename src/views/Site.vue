@@ -3,7 +3,8 @@
         <v-sheet style="background-color: #67921E;">
             <v-row v-if="!isMobile">
                 <v-col cols="12">
-                    <span class="text-headline-medium" style="color: #fff; font-weight: bold;">{{ site?.displayName }}</span>
+                    <span class="text-headline-medium" style="color: #fff; font-weight: bold;">{{ site?.displayName
+                        }}</span>
                 </v-col>
             </v-row>
             <v-row v-if="!isMobile" class="d-flex align-center">
@@ -24,9 +25,10 @@
                 </v-col>
             </v-row>
 
-             <v-row v-if="isMobile" class="d-flex flex-row justify-space-between mt-2">
+            <v-row v-if="isMobile" class="d-flex flex-row justify-space-between mt-2">
                 <v-col cols="auto" class="">
-                    <span class="text-headline-medium" style="color: #fff; font-weight: bold; line-height: 1; font-size: 2.5rem;"> Pastas</span>
+                    <span class="text-headline-medium"
+                        style="color: #fff; font-weight: bold; line-height: 1; font-size: 2.5rem;"> Pastas</span>
                 </v-col>
                 <v-col cols="auto" class="">
                     <v-btn icon class="bg-transparent elevation-0 d-flex align-start" style="color: #fff;">
@@ -141,15 +143,12 @@
 
                                     <Icon
                                         :icon="item.tipo === 'pasta' ? 'ant-design:folder-filled' : 'ant-design:file-filled'"
-                                        width="56"
-                                        :color="item.tipo === 'pasta' ? '#98d72d' : '#ccc'"
-                                        class="mb-3 folder-icon"
-                                        :style="{
+                                        width="56" :color="item.tipo === 'pasta' ? '#98d72d' : '#ccc'"
+                                        class="mb-3 folder-icon" :style="{
                                             filter: item.tipo === 'pasta'
                                                 ? 'drop-shadow(0 6px 4px #6F9D21)'
                                                 : 'drop-shadow(0 6px 4px #888)'
-                                        }"
-                                    >
+                                        }">
                                     </Icon>
                                     <!-- Botão de menu com v-menu próprio -->
                                     <!-- <v-card-title class="d-flex justify-end pa-0 border">
@@ -317,6 +316,9 @@ export default {
                     query: {
                         path: item.ServerRelativeUrl,
                         name: item.Name
+                    },
+                    state: {
+                        file: item
                     }
                 })
             } else {
@@ -423,7 +425,7 @@ export default {
 
                 // 🔥 Busca métricas em background sem travar a UI
                 this.fetchFolderMetrics(pastas, baseUrl, headers);
-
+                console.log('Conteúdo da pasta:', this.folderData);
             } catch (error) {
                 this.folderData = [];
                 console.error("Erro ao acessar conteúdo:", error);

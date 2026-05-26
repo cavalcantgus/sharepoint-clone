@@ -39,76 +39,71 @@
 
         <v-bottom-app-bar color="white" elevation="4" class="pt-2">
 
-    <v-row class="w-100 ma-0 align-center">
+            <v-row class="w-100 ma-0 align-center">
 
-        <!-- Download -->
-        <v-col cols="3" class="d-flex justify-center flex-column align-center">
-            <v-btn icon variant="text" @click="download">
-                <v-icon size="x-large">mdi-tray-arrow-down</v-icon>
-                <!-- <v-tooltip activator="parent" location="top">
+                <!-- Download -->
+                <v-col cols="3" class="d-flex justify-center flex-column align-center">
+                    <v-btn icon variant="text" @click="download">
+                        <v-icon size="x-large">mdi-tray-arrow-down</v-icon>
+                        <!-- <v-tooltip activator="parent" location="top">
                     Baixar
                 </v-tooltip> -->
-            </v-btn>
-            <span style="font-size: 1.20rem;">Baixar</span>
-        </v-col>
+                    </v-btn>
+                    <span style="font-size: 1.20rem;">Baixar</span>
+                </v-col>
 
-        <!-- Compartilhar -->
-        <v-col cols="3" class="d-flex justify-center flex-column align-center">
-            <v-btn icon variant="text" @click="share">
-                <v-icon size="x-large">mdi-comment-outline</v-icon>
-                <!-- <v-tooltip activator="parent" location="top">
+                <!-- Compartilhar -->
+                <v-col cols="3" class="d-flex justify-center flex-column align-center">
+                    <v-btn icon variant="text" @click="openModal = true">
+                        <v-icon size="x-large">mdi-comment-outline</v-icon>
+                        <!-- <v-tooltip activator="parent" location="top">
                     Compartilhar
                 </v-tooltip> -->
-                
-            </v-btn>
-            <span style="font-size: 1.20rem;">Comentar</span>
-        </v-col>
 
-        <!-- Compartilhar -->
-        <v-col cols="3" class="d-flex justify-center flex-column align-center">
-            <v-btn icon variant="text" @click="share">
-                <v-icon size="x-large">mdi-share-variant-outline</v-icon>
-                <!-- <v-tooltip activator="parent" location="top">
+                    </v-btn>
+                    <span style="font-size: 1.20rem;">Comentar</span>
+                </v-col>
+
+                <!-- Compartilhar -->
+                <v-col cols="3" class="d-flex justify-center flex-column align-center">
+                    <v-btn icon variant="text" @click="share">
+                        <v-icon size="x-large">mdi-share-variant-outline</v-icon>
+                        <!-- <v-tooltip activator="parent" location="top">
                     Compartilhar
                 </v-tooltip> -->
-                
-            </v-btn>
-            <span style="font-size: 1.20rem;">Compartilhar</span>
-        </v-col>
 
-        <!-- Mais opções -->
-        <v-col cols="3" class="d-flex justify-center flex-column align-center">
-            <v-btn icon variant="text">
-                <v-icon size="x-large">mdi-dots-vertical</v-icon>
+                    </v-btn>
+                    <span style="font-size: 1.20rem;">Compartilhar</span>
+                </v-col>
 
-                <v-menu activator="parent">
-                    <v-list>
-                        <v-list-item
-                            title="Renomear"
-                            prepend-icon="mdi-pencil"
-                            @click="rename"
-                        />
+                <!-- Mais opções -->
+                <v-col cols="3" class="d-flex justify-center flex-column align-center">
+                    <v-btn icon variant="text">
+                        <v-icon size="x-large">mdi-dots-vertical</v-icon>
 
-                        <v-list-item
-                            title="Excluir"
-                            prepend-icon="mdi-delete-outline"
-                            base-color="error"
-                            @click="deleteFile"
-                        />
-                    </v-list>
-                </v-menu>
-            </v-btn>
-            <span style="font-size: 1.20rem;">Mais</span>
-        </v-col>
+                        <v-menu activator="parent">
+                            <v-list>
+                                <v-list-item title="Renomear" prepend-icon="mdi-pencil" @click="rename" />
 
-    </v-row>
+                                <v-list-item title="Excluir" prepend-icon="mdi-delete-outline" base-color="error"
+                                    @click="deleteFile" />
+                            </v-list>
+                        </v-menu>
+                    </v-btn>
+                    <span style="font-size: 1.20rem;">Mais</span>
+                </v-col>
 
-</v-bottom-app-bar>
+            </v-row>
+
+
+        </v-bottom-app-bar>
+        <CommentSheet :modelValue="openModal" :fileId="file" @update:modelValue="openModal = $event" />
     </div>
 </template>
 
 <script>
 import { authService } from '../auth/authService';
+import CommentSheet from '@/component/CommentSheet.vue';
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
 const VIDEO_EXTS = ['mp4', 'webm', 'mov', 'avi', 'mkv'];
@@ -116,12 +111,16 @@ const TEXT_EXTS = ['txt', 'csv', 'json', 'xml', 'md', 'log'];
 
 export default {
     name: 'FileViewer',
-
+    components: {
+        CommentSheet
+    },
     data: () => ({
+        openModal: false,
         loading: true,
         error: null,
         blobUrl: null,
         textContent: null,
+        file: history.state.file || null
     }),
 
     computed: {
@@ -143,22 +142,31 @@ export default {
         },
     },
 
-    async mounted() {
-        console.log(this.$route.query)
-        if (!this.filePath) {
-            this.error = 'URL do arquivo não informada.';
-            this.loading = false;
-            return;
-        }
-        await this.loadFile();
-
-    },
-
-    beforeUnmount() {
-        if (this.blobUrl) URL.revokeObjectURL(this.blobUrl);
-    },
-
     methods: {
+        async fetchFileItem() {
+            try {
+                const token = await authService.acquireSharePointToken()
+                const path = this.$route.query.path
+
+                // Lembrar de deixar dinâmico o nome do servidor e site no futuro, por enquanto tá hardcoded
+                const res = await fetch(
+                    `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/GetFileByServerRelativeUrl('${encodeURIComponent(path)}')?$expand=ListItemAllFields,Author,ModifiedBy`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: 'application/json;odata=verbose',
+                        }
+                    }
+                )
+
+                const data = await res.json()
+                this.file = data.d.ListItemAllFields.Id
+
+            } catch (error) {
+                console.error('Erro ao buscar item do arquivo:', error)
+            }
+        },
+
         async loadFile() {
             this.loading = true;
             this.error = null;
@@ -167,6 +175,7 @@ export default {
                 const token = await authService.acquireSharePointToken();
 
                 // monta a URL via API REST do SharePoint
+                // Lembrar de deixar dinâmico o nome do servidor e site no futuro, por enquanto tá hardcoded                
                 const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.filePath)}')/$value`;
 
                 const response = await fetch(apiUrl, {
@@ -175,7 +184,7 @@ export default {
                         Accept: 'application/json;odata=verbose'
                     }
                 });
-
+                console.log('Resposta da API:', response);
                 if (!response.ok) throw new Error(`Erro ${response.status}`);
 
                 if (this.fileType === 'text') {
@@ -184,6 +193,7 @@ export default {
                     const blob = await response.blob();
                     this.blobUrl = URL.createObjectURL(blob);
                 }
+
             } catch (err) {
                 this.error = `Não foi possível carregar o arquivo. ${err.message}`;
             } finally {
@@ -209,6 +219,24 @@ export default {
                 console.error('Erro ao baixar:', err);
             }
         },
+    },
+
+    async mounted() {
+        console.log(this.$route.query)
+        if (!this.filePath) {
+            this.error = 'URL do arquivo não informada.';
+            this.loading = false;
+            return;
+        }
+        await this.loadFile();
+        this.file = history.state.file || null
+        console.log('Arquivo carregado:', this.file);
+        this.fetchFileItem();
+
+    },
+
+    beforeUnmount() {
+        if (this.blobUrl) URL.revokeObjectURL(this.blobUrl);
     },
 };
 </script>
