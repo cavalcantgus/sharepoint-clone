@@ -1,5 +1,5 @@
 <template>
-    <div class="viewer-container">
+    <div class="viewer-container pa-2 ga-3">
         <div class="viewer-content">
             <!-- Loading -->
             <div v-if="loading" class="d-flex justify-center align-center fill-height">
@@ -37,7 +37,7 @@
             </div>
         </div>
 
-        <v-bottom-app-bar color="white" elevation="4" class="py-2">
+        <div color="white" class="py-2 border context-action elevation-1">
 
             <v-row class="w-100 ma-0 align-center" style="color: #476515;">
 
@@ -96,7 +96,7 @@
             </v-row>
 
 
-        </v-bottom-app-bar>
+        </div>
         <CommentSheet :modelValue="openModal" :fileId="file" @update:modelValue="openModal = $event" />
     </div>
 </template>
@@ -242,6 +242,11 @@ export default {
 </script>
 
 <style scoped>
+.context-action {
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+}
+
 .viewer-container {
     display: flex;
     flex-direction: column;
@@ -254,6 +259,7 @@ export default {
 }
 
 .viewer-image {
+    border-radius: 10px;
     max-width: 100%;
     max-height: calc(100vh - 80px);
     /* object-fit: contain; */
