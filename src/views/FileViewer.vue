@@ -1,6 +1,6 @@
 <template>
-    <div class="viewer-container pa-2 ga-3 pt-5">
-        <div class="viewer-content">
+    <div class="viewer-container ga-3 pt-5">
+        <div class="viewer-content pa-2">
             <!-- Loading -->
             <div v-if="loading" class="d-flex justify-center align-center fill-height">
                 <v-progress-circular indeterminate color="primary" />
@@ -37,9 +37,9 @@
             </div>
         </div>
 
-        <div color="white" class="py-2 border context-action elevation-1">
+        <v-bottom-app-bar style="background-color: #1E2B09; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;" class="py-2 border context-action pa-0 ma-0 ">
 
-            <v-row class="w-100 ma-0 align-center justify-center pa-2 px-0" style="color: #476515;">
+            <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #67921E; ">
 
                 <!-- Download -->
                 <v-col cols="2" class="d-flex justify-center flex-column align-center ga-1">
@@ -102,7 +102,7 @@
             </v-row>
 
 
-        </div>
+        </v-bottom-app-bar>
         <CommentSheet :modelValue="openModal" :fileId="file" @update:modelValue="openModal = $event" />
     </div>
 </template>
@@ -248,9 +248,6 @@ export default {
 </script>
 
 <style scoped>
-.context-action {
-    border-radius: 20px;
-}
 
 .viewer-container {
     display: flex;
