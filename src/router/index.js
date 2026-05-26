@@ -20,7 +20,8 @@ const routes = [
     {
         path: '/site/:siteId',
         name: 'SiteDetails',
-        component: Site
+        component: Site,
+        meta: { requiresAuth: true }
     },
     {
         path: '/folder/:siteId/:folderPath*',
