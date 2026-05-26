@@ -213,6 +213,7 @@ export default {
                 // TODO: exibir snackbar de erro
             } finally {
                 this.sending = false
+                this.fetchComments()
             }
         },
  

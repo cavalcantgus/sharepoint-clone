@@ -25,7 +25,8 @@ const routes = [
     {
         path: '/folder/:siteId/:folderPath*',
         name: 'FolderDetails',
-        component: Site
+        component: Site,
+        meta: { requiresAuth: true }
     },
     {
         path: '/:pathMatch(.*)*', // 👈 captura / e qualquer rota não mapeada
