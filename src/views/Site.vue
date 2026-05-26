@@ -317,9 +317,6 @@ export default {
                         path: item.ServerRelativeUrl,
                         name: item.Name
                     },
-                    state: {
-                        file: item
-                    }
                 })
             } else {
                 this.fetchSubFolders(item.ServerRelativeUrl)
