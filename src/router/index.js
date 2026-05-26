@@ -29,7 +29,7 @@ const routes = [
     },
     {
         path: '/:pathMatch(.*)*', // 👈 captura / e qualquer rota não mapeada
-        redirect: '/home'         // redireciona pra /home
+        redirect: '/site/mmmalufconsultoria.sharepoint.com,b64909bd-3f9b-4c8f-8f60-9aa4cf79e086,85441a70-d838-4bbb-b9dc-ebfbbfdd723a'         // redireciona pra /home
     },
     {
         path: '/viewer',

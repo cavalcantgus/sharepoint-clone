@@ -37,9 +37,9 @@
             </div>
         </div>
 
-        <v-bottom-app-bar color="white" elevation="4" class="pt-2">
+        <v-bottom-app-bar color="white" elevation="4" class="py-2">
 
-            <v-row class="w-100 ma-0 align-center">
+            <v-row class="w-100 ma-0 align-center" style="color: #476515;">
 
                 <!-- Download -->
                 <v-col cols="3" class="d-flex justify-center flex-column align-center">
@@ -49,7 +49,7 @@
                     Baixar
                 </v-tooltip> -->
                     </v-btn>
-                    <span style="font-size: 1.20rem;">Baixar</span>
+                    <span style="font-size: 1.10rem;">Baixar</span>
                 </v-col>
 
                 <!-- Compartilhar -->
@@ -61,7 +61,7 @@
                 </v-tooltip> -->
 
                     </v-btn>
-                    <span style="font-size: 1.20rem;">Comentar</span>
+                    <span style="font-size: 1.10rem;">Comentar</span>
                 </v-col>
 
                 <!-- Compartilhar -->
@@ -73,7 +73,7 @@
                 </v-tooltip> -->
 
                     </v-btn>
-                    <span style="font-size: 1.20rem;">Compartilhar</span>
+                    <span style="font-size: 1.10rem;">Compartilhar</span>
                 </v-col>
 
                 <!-- Mais opções -->
@@ -90,7 +90,7 @@
                             </v-list>
                         </v-menu>
                     </v-btn>
-                    <span style="font-size: 1.20rem;">Mais</span>
+                    <span style="font-size: 1.10rem;">Mais</span>
                 </v-col>
 
             </v-row>
