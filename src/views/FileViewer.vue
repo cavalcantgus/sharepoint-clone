@@ -1,5 +1,5 @@
 <template>
-    <div class="viewer-container pa-2 ga-3">
+    <div class="viewer-container pa-2 ga-3 pt-5">
         <div class="viewer-content">
             <!-- Loading -->
             <div v-if="loading" class="d-flex justify-center align-center fill-height">
@@ -39,46 +39,52 @@
 
         <div color="white" class="py-2 border context-action elevation-1">
 
-            <v-row class="w-100 ma-0 align-center" style="color: #476515;">
+            <v-row class="w-100 ma-0 align-center justify-center pa-2 px-0" style="color: #476515;">
 
                 <!-- Download -->
-                <v-col cols="3" class="d-flex justify-center flex-column align-center">
-                    <v-btn icon variant="text" @click="download">
+                <v-col cols="2" class="d-flex justify-center flex-column align-center ga-1">
+                    <v-btn height="auto" icon variant="text" @click="download">
                         <v-icon size="x-large">mdi-tray-arrow-down</v-icon>
                         <!-- <v-tooltip activator="parent" location="top">
                     Baixar
                 </v-tooltip> -->
                     </v-btn>
-                    <span style="font-size: 1.10rem;">Baixar</span>
+                    <span class="font-weight-semibold" style="font-size: 1rem;">Baixar</span>
                 </v-col>
 
+                <v-divider vertical></v-divider>
+
                 <!-- Compartilhar -->
-                <v-col cols="3" class="d-flex justify-center flex-column align-center">
-                    <v-btn icon variant="text" @click="openModal = true">
+                <v-col cols="2" class="d-flex justify-center flex-column align-center ga-1">
+                    <v-btn height="auto" icon variant="text" @click="openModal = true">
                         <v-icon size="x-large">mdi-comment-outline</v-icon>
                         <!-- <v-tooltip activator="parent" location="top">
                     Compartilhar
                 </v-tooltip> -->
 
                     </v-btn>
-                    <span style="font-size: 1.10rem;">Comentar</span>
+                    <span class="font-weight-semibold" style="font-size: 1rem;">Comentar</span>
                 </v-col>
 
+                <v-divider vertical></v-divider>
+
                 <!-- Compartilhar -->
-                <v-col cols="3" class="d-flex justify-center flex-column align-center">
-                    <v-btn icon variant="text" @click="share">
+                <v-col cols="2" class="d-flex justify-center flex-column align-center ga-1">
+                    <v-btn height="auto" icon variant="text" @click="share">
                         <v-icon size="x-large">mdi-share-variant-outline</v-icon>
                         <!-- <v-tooltip activator="parent" location="top">
                     Compartilhar
                 </v-tooltip> -->
 
                     </v-btn>
-                    <span style="font-size: 1.10rem;">Compartilhar</span>
+                    <span class="font-weight-semibold" style="font-size: 1rem;">Compartilhar</span>
                 </v-col>
 
+                <v-divider vertical></v-divider>
+
                 <!-- Mais opções -->
-                <v-col cols="3" class="d-flex justify-center flex-column align-center">
-                    <v-btn icon variant="text">
+                <v-col cols="2" class="d-flex justify-center flex-column align-center ga-1">
+                    <v-btn height="auto" icon variant="text">
                         <v-icon size="x-large">mdi-dots-vertical</v-icon>
 
                         <v-menu activator="parent">
@@ -90,7 +96,7 @@
                             </v-list>
                         </v-menu>
                     </v-btn>
-                    <span style="font-size: 1.10rem;">Mais</span>
+                    <span class="font-weight-semibold" style="font-size: 1rem;">Mais</span>
                 </v-col>
 
             </v-row>
@@ -243,8 +249,7 @@ export default {
 
 <style scoped>
 .context-action {
-    border-bottom-left-radius: 30px;
-    border-bottom-right-radius: 30px;
+    border-radius: 20px;
 }
 
 .viewer-container {
@@ -259,7 +264,7 @@ export default {
 }
 
 .viewer-image {
-    border-radius: 10px;
+    border-radius: 20px;
     max-width: 100%;
     max-height: calc(100vh - 80px);
     /* object-fit: contain; */
