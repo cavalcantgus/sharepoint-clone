@@ -37,9 +37,20 @@
             </div>
         </div>
 
-        <v-bottom-app-bar style="background-color: #1E2B09; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;" class="py-2 border context-action pa-0 ma-0 ">
+        <div class="elevation-1">
+            <v-row>
+                <v-col cols="12">
+                    <div>
+                        <v-icon>mdi-file</v-icon>
+                    </div>
+                    <span>Imagem</span>
+                </v-col>
+            </v-row>
+        </div>
 
-            <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #67921E; ">
+        <v-bottom-app-bar style="border-top: 1px solid #ccc ;background-color: #67921E; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;" class="py-2 border context-action pa-0 ma-0 ">
+
+            <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #fff; ">
 
                 <!-- Download -->
                 <v-col cols="2" class="d-flex justify-center flex-column align-center ga-1">
@@ -252,12 +263,14 @@ export default {
 .viewer-container {
     display: flex;
     flex-direction: column;
+    height: 100vh;          /* ← altura total da tela */
+    overflow: hidden;       /* ← container não rola */
 }
 
 .viewer-content {
-    /* flex: 1; */
-    overflow: auto;
-    /* margin-top: 64px; */
+    flex: 1;
+    overflow-y: auto;       /* ← só o conteúdo rola */
+    padding-bottom: 180px;   /* ← espaço pra não ficar atrás da barra fixa */
 }
 
 .viewer-image {
