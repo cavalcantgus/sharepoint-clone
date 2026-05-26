@@ -1,6 +1,6 @@
 <template>
-    <v-container style="background-color: #67921E; height: 100vh;">
-        <v-sheet style="background-color: #67921E;">
+    <v-container class style="background-color: #67921E; height: 100vh;">
+        <v-sheet style="background-color: #67921E;" class="my-4">
             <v-row v-if="!isMobile">
                 <v-col cols="12">
                     <span class="text-headline-medium" style="color: #fff; font-weight: bold;">{{ site?.displayName
@@ -25,13 +25,14 @@
                 </v-col>
             </v-row>
 
-            <v-row v-if="isMobile" class="d-flex flex-row justify-space-between mt-2">
-                <v-col cols="auto" class="">
+            <v-row v-if="isMobile" class="d-flex flex-row justify-space-between justify-center mb-8">
+                <v-col cols="auto" class="d-flex text-white flex-column ">
                     <span class="text-headline-medium"
                         style="color: #fff; font-weight: bold; line-height: 1; font-size: 2.5rem;"> Pastas</span>
+                    <span>Organize e acesse seus arquivos</span>
                 </v-col>
                 <v-col cols="auto" class="">
-                    <v-btn icon class="bg-transparent elevation-0 d-flex align-start" style="color: #fff;">
+                    <v-btn icon class="elevation-0 d-flex align-center" style="color: #fff; background-color: #1E2B0980;">
                         <v-icon size="25">mdi-magnify</v-icon>
                     </v-btn>
                 </v-col>
@@ -115,16 +116,33 @@
 
             <!-- Grid de Pastas e Arquivos -->
             <v-sheet v-if="isMobile" class="container-folders-mobile">
-                <v-row class="d-flex justify-space-between">
+                <v-row class="d-flex justify-space-between" no-gutters="">
                     <v-col cols="auto">
-                        <v-btn class="bg-transparent elevation-0" style="color: #476515;">
+                        <v-btn class=" elevation-0"
+                            style="color: #476515; background-color: #E4F4C7; border-radius: 8px;">
                             <v-icon size="25">mdi-filter-variant</v-icon>
+                            <span  style="font-size: 1.10rem;">Filtros</span>
+                        </v-btn>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                    <v-col cols="auto">
+                        <v-btn size="small" icon class="bg-transparent elevation-2 rounded-lg" style="color: #476515;">
+                            <Icon width="25" icon="mingcute:grid-2-line"></Icon>
                         </v-btn>
                     </v-col>
                     <v-col cols="auto">
-                        <v-btn class="bg-transparent elevation-0" style="color: #476515;">
-                            <v-icon size="25">mdi-view-grid-outline</v-icon>
+                        <v-btn size="small" icon class="bg-transparent elevation-0 rounded-lg" style="color: #476515;">
+                            <Icon width="25" icon="ic:sharp-format-list-bulleted"></Icon>
                         </v-btn>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col class="d-flex flex-column">
+                        <span class="font-weight-semibold" style="font-size: 1.10rem;">Pastas</span>
+                        <div>
+                            <span>{{ this.folderData?.length }} <span>{{ this.folderData?.length === 1 ? 'pasta' : 'pastas'}} • </span></span>
+                            <span>{{ this.totalItems }} <span>{{ this.totalItems === 1 ? 'item' : 'itens' }}</span></span>
+                        </div>
                     </v-col>
                 </v-row>
                 <v-row class="mt-6" v-if="!loadingFolder && folderData.length > 0 && isMobile">
@@ -248,6 +266,7 @@ export default {
         longPressed: false,
         folderData: null,
         loadingFolder: false,
+        totalItems: 0,
         header: [
             { title: 'Nome', value: 'Name' },
             { title: 'Modificado em', value: 'TimeLastModified' },
@@ -368,6 +387,18 @@ export default {
                     .map(f => ({ ...f, tipo: 'arquivo' }));
 
                 this.folderData = [...pastas, ...arquivos];
+                this.totalItems = 0;
+
+                this.folderData.forEach(item => {
+                    console.log('ItemCount:', item.ItemCount);
+
+                    this.totalItems += Number(item.ItemCount || 1);
+
+                    console.log('TotalItems acumulado:', this.totalItems);
+                });
+
+                console.log('Total de itens na pasta:', this.totalItems);
+                console.log('Conteúdo da pasta:', this.folderData);
             } catch (error) {
                 this.folderData = [];
                 console.error("Erro ao acessar SharePoint:", error);
@@ -410,6 +441,15 @@ export default {
 
                 this.folderData = [...pastas, ...arquivos];
 
+                this.totalItems = 0;
+
+                this.folderData.forEach(item => {
+                    console.log('ItemCount:', item.ItemCount);
+
+                    this.totalItems += Number(item.ItemCount || 1);
+
+                    console.log('TotalItems acumulado:', this.totalItems);
+                }); 
                 if (navigate) {
                     this.$router.push({
                         name: 'FolderDetails',
@@ -465,6 +505,7 @@ export default {
 
     mounted() {
         this.drawer = !this.isMobile;
+        this.fetchSharePointFolder();
     }
 }
 

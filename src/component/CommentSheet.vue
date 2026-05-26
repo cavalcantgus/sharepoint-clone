@@ -18,7 +18,7 @@
             <v-divider />
 
             <!-- Lista de comentários -->
-            <div ref="listRef" class="overflow-y-auto flex-grow-1 px-4 py-3" style="min-height: 0;">
+            <div ref="listRef" class="overflow-y-auto flex-grow-1 px-4 py-5" style="min-height: 0;">
 
                 <!-- Loading inicial -->
                 <div v-if="loadingComments" class="d-flex justify-center py-8">
@@ -41,11 +41,7 @@
 
                 <!-- Lista -->
                 <div v-else class="d-flex flex-column ga-4">
-                    <div
-                        v-for="comment in comments"
-                        :key="comment.id"
-                        class="d-flex ga-3"
-                    >
+                    <div v-for="comment in comments" :key="comment.id" class="d-flex ga-3">
                         <!-- Avatar -->
                         <v-avatar size="36" color="primary">
                             <span class="text-caption font-weight-medium">
@@ -72,28 +68,12 @@
 
             <!-- Input de novo comentário -->
             <div class="px-4 py-3">
-                <v-textarea
-                    v-model="newComment"
-                    placeholder="Escreva um comentário..."
-                    rows="1"
-                    auto-grow
-                    max-rows="4"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    :disabled="sending"
-                    @keydown.enter.exact.prevent="submit"
-                >
+                <v-textarea v-model="newComment" placeholder="Escreva um comentário..." rows="1" auto-grow max-rows="4"
+                    variant="outlined" density="compact" hide-details :disabled="sending"
+                    @keydown.enter.exact.prevent="submit">
                     <template #append-inner>
-                        <v-btn
-                            icon
-                            variant="text"
-                            color="primary"
-                            size="small"
-                            :loading="sending"
-                            :disabled="!newComment.trim()"
-                            @click="submit"
-                        >
+                        <v-btn icon variant="text" color="primary" size="small" :loading="sending"
+                            :disabled="!newComment.trim()" @click="submit">
                             <v-icon>mdi-send</v-icon>
                         </v-btn>
                     </template>
@@ -110,7 +90,7 @@ import { authService } from '../auth/authService';
 
 export default {
     name: 'CommentsSheet',
- 
+
     props: {
         modelValue: {
             type: Boolean,
@@ -121,9 +101,9 @@ export default {
             required: false,
         },
     },
- 
+
     emits: ['update:modelValue'],
- 
+
     data: () => ({
         isOpen: false,
         newComment: '',
@@ -132,13 +112,13 @@ export default {
         sending: false,
         comments: [],
     }),
- 
+
     watch: {
         modelValue(val) {
             this.isOpen = val
             // if (val) this.fetchComments() // descomente quando a API estiver pronta
         },
- 
+
         isOpen(val) {
             this.$emit('update:modelValue', val)
         },
@@ -147,45 +127,45 @@ export default {
             if (val) this.fetchComments()
         },
     },
- 
+
     methods: {
         // ─── API ──────────────────────────────────────────────────────────────
- 
+
         async fetchComments() {
-    if (!this.fileId) return
+            if (!this.fileId) return
 
-    this.loadingComments = true
-    this.loadError = false
+            this.loadingComments = true
+            this.loadError = false
 
-    try {
-        const token = await authService.acquireSharePointToken()
+            try {
+                const token = await authService.acquireSharePointToken()
 
-        const res = await fetch(
-            `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/lists('b2365f70-d3a1-4f9f-94d0-321706bc96b8')/items(${this.fileId})/Comments`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json;odata=verbose',
-                }
+                const res = await fetch(
+                    `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/lists('b2365f70-d3a1-4f9f-94d0-321706bc96b8')/items(${this.fileId})/Comments`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            Accept: 'application/json;odata=verbose',
+                        }
+                    }
+                )
+
+                if (!res.ok) throw new Error()
+
+                const data = await res.json()
+                this.comments = data.d?.results || []
+                console.log('Comentários carregados:', this.comments)
+            } catch {
+                this.loadError = true
+            } finally {
+                this.loadingComments = false
             }
-        )
+        },
 
-        if (!res.ok) throw new Error()
-
-        const data = await res.json()
-        this.comments = data.d?.results || []
-        console.log('Comentários carregados:', this.comments)
-    } catch {
-        this.loadError = true
-    } finally {
-        this.loadingComments = false
-    }
-},
- 
         async submit() {
             const text = this.newComment.trim()
             if (!text || this.sending) return
- 
+
             this.sending = true
             const token = await authService.acquireSharePointToken()
             try {
@@ -197,13 +177,13 @@ export default {
                     },
                     body: JSON.stringify({ text: text }),
                 })
- 
+
                 if (!res.ok) throw new Error()
- 
+
                 const created = await res.json()
                 this.comments.push(created)
                 this.newComment = ''
- 
+
                 // Scroll para o novo comentário
                 await this.$nextTick()
                 if (this.$refs.listRef) {
@@ -214,11 +194,12 @@ export default {
             } finally {
                 this.sending = false
                 this.fetchComments()
+                this.newComment = ''
             }
         },
- 
+
         // ─── Helpers ──────────────────────────────────────────────────────────
- 
+
         initials(name = '') {
             return name
                 .split(' ')
@@ -226,18 +207,18 @@ export default {
                 .map((n) => n[0]?.toUpperCase())
                 .join('')
         },
- 
+
         formatDate(iso) {
             if (!iso) return ''
- 
+
             const date = new Date(iso)
-            const now  = new Date()
+            const now = new Date()
             const diff = Math.floor((now - date) / 1000)
- 
-            if (diff < 60)    return 'agora'
-            if (diff < 3600)  return `${Math.floor(diff / 60)}min`
+
+            if (diff < 60) return 'agora'
+            if (diff < 3600) return `${Math.floor(diff / 60)}min`
             if (diff < 86400) return `${Math.floor(diff / 3600)}h`
- 
+
             return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
         },
     },
