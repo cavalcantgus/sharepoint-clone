@@ -4,7 +4,7 @@
             <v-row v-if="!isMobile">
                 <v-col cols="12">
                     <span class="text-headline-medium" style="color: #fff; font-weight: bold;">{{ site?.displayName
-                        }}</span>
+                    }}</span>
                 </v-col>
             </v-row>
             <v-row v-if="!isMobile" class="d-flex align-center">
@@ -32,7 +32,8 @@
                     <span>Organize e acesse seus arquivos</span>
                 </v-col>
                 <v-col cols="auto" class="">
-                    <v-btn icon class="elevation-0 d-flex align-center" style="color: #fff; background-color: #1E2B0980;">
+                    <v-btn icon class="elevation-0 d-flex align-center"
+                        style="color: #fff; background-color: #1E2B0980;">
                         <v-icon size="25">mdi-magnify</v-icon>
                     </v-btn>
                 </v-col>
@@ -121,7 +122,7 @@
                         <v-btn class=" elevation-0"
                             style="color: #476515; background-color: #E4F4C7; border-radius: 8px;">
                             <v-icon size="25">mdi-filter-variant</v-icon>
-                            <span  style="font-size: 1.10rem;">Filtros</span>
+                            <span style="font-size: 1.10rem;">Filtros</span>
                         </v-btn>
                     </v-col>
                     <v-spacer></v-spacer>
@@ -140,13 +141,17 @@
                     <v-col class="d-flex flex-column">
                         <span class="font-weight-semibold" style="font-size: 1.10rem;">Pastas</span>
                         <div>
-                            <span>{{ this.folderData?.length }} <span>{{ this.folderData?.length === 1 ? 'pasta' : 'pastas'}} • </span></span>
-                            <span>{{ this.totalItems }} <span>{{ this.totalItems === 1 ? 'item' : 'itens' }}</span></span>
+                            <span>{{ this.folderData?.length }} <span>{{ this.folderData?.length === 1 ? 'pasta' :
+                                'pastas' }} •
+                                </span></span>
+                            <span>{{ this.totalItems }} <span>{{ this.totalItems === 1 ? 'item' : 'itens'
+                                    }}</span></span>
                         </div>
                     </v-col>
                 </v-row>
                 <v-row class="mt-6" v-if="!loadingFolder && folderData.length > 0 && isMobile">
-                    <v-col v-for="(item, index) in folderData" :key="index" cols="12" sm="4" md="3" lg="2">
+                    <v-col class="elevation-1 rounded-lg pa-2" v-for="(item, index) in folderData" :key="index"
+                        cols="12" sm="4" md="3" lg="2">
 
                         <!-- Bottom Sheet — aberto pelo toque longo via openMenuIndex -->
                         <v-bottom-sheet :model-value="openMenuIndex === index"
@@ -195,18 +200,34 @@
                                                 item.Name }}</span>
                                         </div>
 
-                                        <div class="text-caption text-grey text-truncate w-100">
+                                        <div class="text-caption text-grey text-truncate w-100 d-flex flex-row">
                                             <!-- Pasta -->
                                             <template v-if="item.tipo === 'pasta'">
-                                                <span style="color: #577B1A; font-size: 1rem;">
-                                                    {{ item.ItemCount > 1 ? `${item.ItemCount} itens` : '1 item' }}
-                                                </span>
-                                                <span style="color: #577B1A; font-size: 1rem;" class="mx-2">|</span>
-                                                <span style="color: #577B1A; font-size: 1rem;">
-                                                    <template v-if="item.TotalSize === null"> calculando...</template>
-                                                    <template v-else-if="item.TotalSize === -1"> —</template>
-                                                    <template v-else> {{ formatBytes(item.TotalSize) }}</template>
-                                                </span>
+                                                <div class="d-flex flex-column">
+                                                    <div class="d-flex flex-row">
+                                                        <span style="color: #577B1A; font-size: 1rem;">
+                                                            {{ item.ItemCount > 1 ? `${item.ItemCount} itens` : '1 item'
+                                                            }}
+                                                        </span>
+                                                        <span style="color: #577B1A; font-size: 1rem;"
+                                                            class="mx-2">|</span>
+                                                        <span style="color: #577B1A; font-size: 1rem;">
+                                                            <template v-if="item.TotalSize === null">
+                                                                calculando...</template>
+                                                            <template v-else-if="item.TotalSize === -1"> —</template>
+                                                            <template v-else> {{ formatBytes(item.TotalSize)
+                                                            }}</template>
+                                                        </span>
+
+
+                                                    </div>
+                                                    <div class="d-flex align-center">
+                                                        <v-icon>mdi-calendar</v-icon>
+                                                        <span>Atualizado em: {{ formatDate(item.TimeLastModified)
+                                                        }}</span>
+                                                    </div>
+                                                </div>
+
                                             </template>
 
                                             <!-- Arquivo -->
@@ -449,7 +470,7 @@ export default {
                     this.totalItems += Number(item.ItemCount || 1);
 
                     console.log('TotalItems acumulado:', this.totalItems);
-                }); 
+                });
                 if (navigate) {
                     this.$router.push({
                         name: 'FolderDetails',
@@ -501,6 +522,16 @@ export default {
             if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KiloBytes (KB)`;
             return `${(bytes / 1048576).toFixed(2)} MegaBytes (MB)`;
         },
+
+        formatDate(dateString) {
+            return new Date(dateString).toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
     },
 
     mounted() {
