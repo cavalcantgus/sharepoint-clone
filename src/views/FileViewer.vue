@@ -1,5 +1,5 @@
 <template>
-    <div class="viewer-container ga-3 pt-5">
+    <div class="viewer-container ga-3">
         <div class="viewer-content pa-2">
             <!-- Loading -->
             <div v-if="loading" class="d-flex justify-center align-center fill-height">
@@ -36,19 +36,9 @@
                 <v-btn color="primary" @click="download">Baixar arquivo</v-btn>
             </div>
         </div>
+        
 
-        <div class="elevation-1">
-            <v-row>
-                <v-col cols="12">
-                    <div>
-                        <v-icon>mdi-file</v-icon>
-                    </div>
-                    <span>Imagem</span>
-                </v-col>
-            </v-row>
-        </div>
-
-        <v-bottom-app-bar style="border-top: 1px solid #ccc ;background-color: #67921E; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;" class="py-2 border context-action pa-0 ma-0 ">
+        <v-footer style="border-top: 1px solid #ccc ;background-color: #67921E; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;" class="py-2 border context-action pa-0 ma-0 ">
 
             <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #ffffff; ">
 
@@ -100,6 +90,7 @@
 
                         <v-menu activator="parent">
                             <v-list>
+                                <v-list-item title="Detalhes" prepend-icon="mdi-information-slab-circle-outline" @click="openDetails = true" />
                                 <v-list-item title="Renomear" prepend-icon="mdi-pencil" @click="rename" />
 
                                 <v-list-item title="Excluir" prepend-icon="mdi-delete-outline" base-color="error"
@@ -113,14 +104,17 @@
             </v-row>
 
 
-        </v-bottom-app-bar>
-        <CommentSheet :modelValue="openModal" :fileId="file" @update:modelValue="openModal = $event" />
+        </v-footer>
+
+        <CommentSheet :modelValue="openModal" :fileId="fileId" @update:modelValue="openModal = $event" />
+        <InfoDetails :modelValue="openDetails" :file="file"  :fileExt="fileExt" @update:modelValue="openDetails = $event" :fileType="fileType"/>
     </div>
 </template>
 
 <script>
 import { authService } from '../auth/authService';
 import CommentSheet from '@/component/CommentSheet.vue';
+import InfoDetails from '@/component/InfoDetails.vue';
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
 const VIDEO_EXTS = ['mp4', 'webm', 'mov', 'avi', 'mkv'];
@@ -129,15 +123,19 @@ const TEXT_EXTS = ['txt', 'csv', 'json', 'xml', 'md', 'log'];
 export default {
     name: 'FileViewer',
     components: {
-        CommentSheet
+        CommentSheet,
+        InfoDetails,
     },
     data: () => ({
         openModal: false,
+        openDetails: false,
         loading: true,
         error: null,
         blobUrl: null,
         textContent: null,
-        file: history.state.file || null
+        fileId: null,
+        file: null,
+        varFileType: null,
     }),
 
     computed: {
@@ -177,7 +175,9 @@ export default {
                 )
 
                 const data = await res.json()
-                this.file = data.d.ListItemAllFields.Id
+                this.fileId = data.d.ListItemAllFields.Id
+                this.file = data.d
+                console.log('Item do arquivo:', this.file)
 
             } catch (error) {
                 console.error('Erro ao buscar item do arquivo:', error)
@@ -260,24 +260,32 @@ export default {
 
 <style scoped>
 
-.viewer-container {
+/* .viewer-container {
     display: flex;
     flex-direction: column;
-    height: 100vh;          /* ← altura total da tela */
-    overflow: hidden;       /* ← container não rola */
-}
+    height: 100dvh;
+    overflow: hidden;      
+} */
 
 .viewer-content {
     flex: 1;
-    overflow-y: auto;       /* ← só o conteúdo rola */
-    padding-bottom: 180px;   /* ← espaço pra não ficar atrás da barra fixa */
+    overflow-y: scroll;
+    height: 100dvh;
+    display: flex;   
+    padding-bottom: 120px;       
+    flex-direction: column;     /* ← só o conteúdo rola */
+  /* ← espaço pra não ficar atrás da barra fixa */
+}
+
+.viewer-content > div {
+    flex: 1; /* ← faz a div crescer e preencher */
 }
 
 .viewer-image {
     border-radius: 20px;
     max-width: 100%;
-    max-height: calc(100vh - 80px);
-    /* object-fit: contain; */
+    max-height: 100%;       /* ← era calc(100vh - 80px) */
+    object-fit: contain;    /* ← descomenta isso */
 }
 
 .viewer-video {
