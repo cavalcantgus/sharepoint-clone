@@ -36,9 +36,11 @@
                 <v-btn color="primary" @click="download">Baixar arquivo</v-btn>
             </div>
         </div>
-        
 
-        <v-footer style="border-top: 1px solid #ccc ;background-color: #67921E; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;" class="py-2 border context-action pa-0 ma-0 ">
+
+        <v-footer
+            style="border-top: 1px solid #ccc ;background-color: #67921E; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;"
+            class="py-2 border context-action pa-0 ma-0 ">
 
             <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #ffffff; ">
 
@@ -90,8 +92,20 @@
 
                         <v-menu activator="parent">
                             <v-list>
-                                <v-list-item title="Detalhes" prepend-icon="mdi-information-slab-circle-outline" @click="openDetails = true" />
-                                <v-list-item title="Renomear" prepend-icon="mdi-pencil" @click="rename" />
+                                <v-list-item title="Detalhes" prepend-icon="mdi-information-slab-circle-outline"
+                                    @click="openDetails = true" />
+
+                                <v-divider />
+
+                                <v-list-item style="font-weight: bold;" title="Aprovar" prepend-icon="mdi-check-circle-outline"
+                                    base-color="success" @click="approve" />
+
+                                <v-list-item title="Reprovar" prepend-icon="mdi-close-circle-outline"
+                                    base-color="error" @click="reject" />
+
+                                <v-divider />
+
+                                <v-list-item title="Renomear" prepend-icon="mdi-pencil-outline" @click="rename" />
 
                                 <v-list-item title="Excluir" prepend-icon="mdi-delete-outline" base-color="error"
                                     @click="deleteFile" />
@@ -107,7 +121,8 @@
         </v-footer>
 
         <CommentSheet :modelValue="openModal" :fileId="fileId" @update:modelValue="openModal = $event" />
-        <InfoDetails :modelValue="openDetails" :file="file"  :fileExt="fileExt" @update:modelValue="openDetails = $event" :fileType="fileType"/>
+        <InfoDetails :modelValue="openDetails" :file="file" :fileExt="fileExt" @update:modelValue="openDetails = $event"
+            :fileType="fileType" />
     </div>
 </template>
 
@@ -259,7 +274,6 @@ export default {
 </script>
 
 <style scoped>
-
 /* .viewer-container {
     display: flex;
     flex-direction: column;
@@ -271,21 +285,25 @@ export default {
     flex: 1;
     overflow-y: scroll;
     height: 100dvh;
-    display: flex;   
-    padding-bottom: 120px;       
-    flex-direction: column;     /* ← só o conteúdo rola */
-  /* ← espaço pra não ficar atrás da barra fixa */
+    display: flex;
+    padding-bottom: 120px;
+    flex-direction: column;
+    /* ← só o conteúdo rola */
+    /* ← espaço pra não ficar atrás da barra fixa */
 }
 
-.viewer-content > div {
-    flex: 1; /* ← faz a div crescer e preencher */
+.viewer-content>div {
+    flex: 1;
+    /* ← faz a div crescer e preencher */
 }
 
 .viewer-image {
     border-radius: 20px;
     max-width: 100%;
-    max-height: 100%;       /* ← era calc(100vh - 80px) */
-    object-fit: contain;    /* ← descomenta isso */
+    max-height: 100%;
+    /* ← era calc(100vh - 80px) */
+    object-fit: contain;
+    /* ← descomenta isso */
 }
 
 .viewer-video {
