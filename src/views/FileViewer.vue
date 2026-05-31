@@ -97,11 +97,11 @@
 
                                 <v-divider />
 
-                                <v-list-item style="font-weight: bold;" title="Aprovar" prepend-icon="mdi-check-circle-outline"
-                                    base-color="success" @click="approve" />
+                                <v-list-item style="font-weight: bold;" title="Aprovar"
+                                    prepend-icon="mdi-check-circle-outline" base-color="success" @click="moverArquivoParaAprovados()" />
 
-                                <v-list-item title="Reprovar" prepend-icon="mdi-close-circle-outline"
-                                    base-color="error" @click="reject" />
+                                <v-list-item title="Reprovar" prepend-icon="mdi-close-circle-outline" base-color="error"
+                                    @click="moverArquivoParaReprovados()" />
 
                                 <v-divider />
 
@@ -150,7 +150,11 @@ export default {
         textContent: null,
         fileId: null,
         file: null,
+        from: null,
+        serverRelativeUrl: null,
         varFileType: null,
+        aprovado: "/sites/ServidorGeraoBancria/Teste/Servidor Geração Bancária/Aprovados",
+        reprovado: "/sites/ServidorGeraoBancria/Teste/Servidor Geração Bancária/Reprovados"
     }),
 
     computed: {
@@ -199,6 +203,36 @@ export default {
             }
         },
 
+        async moverArquivoParaAprovados() {
+            const baseUrl = "https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api";
+            const nomeDoArquivo = this.file?.ServerRelativeUrl.split("/").pop();
+            const token = await authService.acquireSharePointToken();
+
+            await fetch(`${baseUrl}/Web/GetFileByServerRelativePath(decodedurl='${this.file?.ServerRelativeUrl}')/MoveTo(newUrl='${this.aprovado}/${nomeDoArquivo}',flags=1)`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json;odata=verbose"
+                }
+            });
+            this.$router.replace(this.from)
+        },
+
+        async moverArquivoParaReprovados() {
+            const baseUrl = "https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api";
+            const nomeDoArquivo = this.file?.ServerRelativeUrl.split("/").pop();
+            const token = await authService.acquireSharePointToken();
+
+            await fetch(`${baseUrl}/Web/GetFileByServerRelativePath(decodedurl='${this.file?.ServerRelativeUrl}')/MoveTo(newUrl='${this.reprovado}/${nomeDoArquivo}',flags=1)`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Accept": "application/json;odata=verbose"
+                }
+            });
+            this.$router.replace(this.from)
+        },
+
         async loadFile() {
             this.loading = true;
             this.error = null;
@@ -208,7 +242,7 @@ export default {
 
                 // monta a URL via API REST do SharePoint
                 // Lembrar de deixar dinâmico o nome do servidor e site no futuro, por enquanto tá hardcoded                
-                const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.filePath)}')/$value`;
+                const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')/$value`;
 
                 const response = await fetch(apiUrl, {
                     headers: {
@@ -260,11 +294,14 @@ export default {
             this.loading = false;
             return;
         }
+        this.from = this.$route.query.from || null
+        console.log('Rota de origem:', this.from);
+        this.serverRelativeUrl = this.$route.query.path
+        console.log('URL do arquivo:', this.serverRelativeUrl);
         await this.loadFile();
         this.file = history.state.file || null
         console.log('Arquivo carregado:', this.file);
         this.fetchFileItem();
-
     },
 
     beforeUnmount() {

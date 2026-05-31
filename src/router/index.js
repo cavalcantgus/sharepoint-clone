@@ -24,7 +24,7 @@ const routes = [
         meta: { requiresAuth: true }
     },
     {
-        path: '/folder/:siteId/:folderPath*',
+        path: '/folder/:siteId/:folderPath(.*)',
         name: 'FolderDetails',
         component: Site,
         meta: { requiresAuth: true }
