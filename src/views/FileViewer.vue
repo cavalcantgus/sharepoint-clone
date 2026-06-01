@@ -206,51 +206,17 @@ export default {
 
     async moverArquivoParaAprovados() {
       const baseUrl = "https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api";
+      const nomeDoArquivo = this.file?.ServerRelativeUrl.split("/").pop();
       const token = await authService.acquireSharePointToken();
 
-      const serverRelativeUrl = decodeURIComponent(this.file?.ServerRelativeUrl);
-      const nomeOriginal = serverRelativeUrl.split("/").pop();
-      const ext = nomeOriginal.split(".").pop();
-      const nomeTmp = `tmp_${Date.now()}.${ext}`;
-      const pastaOrigem = serverRelativeUrl.substring(0, serverRelativeUrl.lastIndexOf("/"));
-
-      const headers = {
-        "Authorization": `Bearer ${token}`,
-        "Accept": "application/json;odata=verbose",
-      };
-
-      // 1. Busca o ID do item
-      const infoRes = await fetch(`${baseUrl}/Web/GetFileByServerRelativePath(decodedurl='${serverRelativeUrl}')/ListItemAllFields`, { headers });
-      const info = await infoRes.json();
-      const itemId = info.d.ID;
-      const listItemType = info.d.__metadata.type; // pega o type correto dinamicamente
-
-      // 2. Renomeia para nome temporário
-      await fetch(`${baseUrl}/Web/Lists/getByTitle('Servidor Geração Bancária')/Items(${itemId})`, {
+      await fetch(`${baseUrl}/Web/GetFileByServerRelativePath(decodedurl='${this.file?.ServerRelativeUrl}')/MoveTo(newUrl='${this.aprovado}/${nomeDoArquivo}',flags=1)`, {
         method: "POST",
-        headers: { ...headers, "X-HTTP-Method": "MERGE", "IF-MATCH": "*", "Content-Type": "application/json;odata=verbose" },
-        body: JSON.stringify({ __metadata: { type: listItemType }, FileLeafRef: nomeTmp, Title: nomeTmp })
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json;odata=verbose"
+        }
       });
-
-      // 3. Move com nome temporário
-      await fetch(`${baseUrl}/Web/GetFileByServerRelativePath(decodedurl='${pastaOrigem}/${nomeTmp}')/MoveTo(newUrl='${this.aprovado}/${nomeTmp}',flags=1)`, {
-        method: "POST",
-        headers
-      });
-
-      // 4. Busca o ID do item já em aprovados
-      const infoRes2 = await fetch(`${baseUrl}/Web/GetFileByServerRelativePath(decodedurl='${this.aprovado}/${nomeTmp}')/ListItemAllFields`, { headers });
-      const info2 = await infoRes2.json();
-      const itemId2 = info2.d.ID;
-
-      // 5. Renomeia de volta para o nome original
-      await fetch(`${baseUrl}/Web/Lists/getByTitle('Servidor Geração Bancária')/Items(${itemId2})`, {
-        method: "POST",
-        headers: { ...headers, "X-HTTP-Method": "MERGE", "IF-MATCH": "*", "Content-Type": "application/json;odata=verbose" },
-        body: JSON.stringify({ __metadata: { type: listItemType }, FileLeafRef: nomeOriginal, Title: nomeOriginal })
-      });
-
-      this.$router.replace(this.from);
+      this.$router.go(-1)
     },
 
     async moverArquivoParaReprovados() {
@@ -265,7 +231,7 @@ export default {
           "Accept": "application/json;odata=verbose"
         }
       });
-      this.$router.replace(this.from)
+      this.$router.go(-1)
     },
 
     async loadFile() {

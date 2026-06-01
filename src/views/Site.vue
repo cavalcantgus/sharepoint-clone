@@ -130,16 +130,19 @@ export default {
     '$route': {
       immediate: true,
       async handler(to) {
+        console.log("CHAMOU WATCH")
         console.log('route changed - TO:', to.name, to.params)
         if (to.name === 'SiteDetails') {
           await this.fetchSharePointFolder()
         } else if (to.name === 'FolderDetails') {
-          const folderPath = decodeURIComponent(to.params.folderPath)
+          console.log('site ao voltar:', this.site)
+          const folderPath = to.params.folderPath
           await this.fetchSubFolders(folderPath, false) // false = não navega de novo
         }
 
-        console.log(to.params.folderPath)
-        console.log(typeof to.params.folderPath)
+        console.log('route changed - TO:', to.name, to.params)
+        console.log('history.length:', window.history.length)
+        console.log('history.state:', window.history.state)
       }
 
     }
@@ -279,7 +282,7 @@ export default {
             name: 'FolderDetails',
             params: {
               siteId: this.site.id,
-              folderPath: encodeURIComponent(folderPath)
+              folderPath: folderPath
             }
           });
         }
@@ -322,7 +325,9 @@ export default {
 
   mounted() {
     this.drawer = !this.isMobile;
-    this.fetchSharePointFolder();
+    if (this.$route.name === 'SiteDetails') {
+      this.fetchSharePointFolder()
+    }
   }
 }
 

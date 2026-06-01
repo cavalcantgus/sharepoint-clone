@@ -29,10 +29,10 @@ const routes = [
         component: Site,
         meta: { requiresAuth: true }
     },
-    {
-        path: '/:pathMatch(.*)*', // 👈 captura / e qualquer rota não mapeada
-        redirect: '/site/mmmalufconsultoria.sharepoint.com,b64909bd-3f9b-4c8f-8f60-9aa4cf79e086,85441a70-d838-4bbb-b9dc-ebfbbfdd723a'         // redireciona pra /home
-    },
+    // {
+    //     path: '/:pathMatch(.*)*', // 👈 captura / e qualquer rota não mapeada
+    //     redirect: '/site/mmmalufconsultoria.sharepoint.com,b64909bd-3f9b-4c8f-8f60-9aa4cf79e086,85441a70-d838-4bbb-b9dc-ebfbbfdd723a'         // redireciona pra /home
+    // },
     {
         path: '/viewer',
         name: 'FileViewer',
@@ -45,6 +45,11 @@ const router = createRouter({
     history: createWebHistory('/sharepoint-clone/'), // 👈 adiciona o base
     routes
 });
+
+router.afterEach((to, from) => {
+  console.log(`route changed - TO: ${to.name}`, to.params)
+  console.log(`route changed - FROM: ${from.name}`, from.params)
+})
 
 router.beforeEach(async (to, from, next) => {
     if (!to.meta.requiresAuth) {
