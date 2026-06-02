@@ -17,6 +17,8 @@ import { Icon } from '@iconify/vue';
 
 import { PublicClientApplication } from '@azure/msal-browser';
 import { msalConfig } from './auth/authConfig';
+import Toast from 'vue-toastification'
+import 'vue-toastification/dist/index.css'
 
 const vuetify = createVuetify({
     components,
@@ -36,6 +38,7 @@ await msalInstance.initialize();
 
 const app = createApp(App);
 
+app.use(Toast)
 app.config.globalProperties.$msal = msalInstance;
 app.config.devtools = false
 app.component('Icon', Icon);

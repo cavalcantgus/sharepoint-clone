@@ -17,7 +17,7 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-sheet v-if="isMobile"  style="background-color: #fff; height: auto; flex: 1; border-top-left-radius: 34px; border-top-right-radius: 34px; margin: 0;" class="my-4 mx-n4" >
+    <v-sheet v-if="isMobile"  style="background-color: #fff; height: auto; flex: 1; border-top-left-radius: 34px; border-top-right-radius: 34px; margin: 0 -16px;" class="pb-3 my-4 mx-n4" >
 
       <!-- Botões de ação e contagem -->
       <v-row class="px-6 py-4 d-flex justify-space-between justify-center " dense>

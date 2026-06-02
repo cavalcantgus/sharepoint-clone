@@ -166,6 +166,7 @@
 import { authService } from '../auth/authService';
 import CommentSheet from '@/component/CommentSheet.vue';
 import InfoDetails from '@/component/InfoDetails.vue';
+import { toast } from '@/plugins/toast.js'
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
 const VIDEO_EXTS = ['mp4', 'webm', 'mov', 'avi', 'mkv'];
@@ -253,6 +254,7 @@ export default {
           "Accept": "application/json;odata=verbose"
         }
       });
+      toast.success("Arquivo movido para aprovados.");
       this.$router.go(-1)
     },
 
@@ -268,6 +270,7 @@ export default {
           "Accept": "application/json;odata=verbose"
         }
       });
+      toast.success("Arquivo movido para reprovados.");
       this.$router.go(-1)
     },
 
