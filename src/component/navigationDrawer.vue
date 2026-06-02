@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar  v-if="isMobile" class="elevation-0 py-2" style="background-color: #67921E;">
+    <v-app-bar  v-if="isMobile" class="elevation-0" style="background-color: #67921E;">
         <v-app-bar-nav-icon @click="drawer = !drawer" style="color: #fff;" />
         <v-row class="mx-3" style="color: #fff;">
             <v-col class="d-flex flex-column">

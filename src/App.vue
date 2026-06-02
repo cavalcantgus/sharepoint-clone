@@ -19,9 +19,9 @@
       </AppDrawer>
     </template>
 
-    <v-main>
-      <router-view />
-    </v-main>
+  <v-main style="display: flex; flex-direction: column; overflow: hidden;">
+  <router-view style="flex: 1; min-height: 0; display: flex; flex-direction: column;" />
+</v-main>
   </v-app>
 </template>
 <script>
@@ -32,3 +32,11 @@ export default {
   components: { AppDrawer }
 }
 </script>
+
+
+<style>
+.v-main {
+  max-height: 100dvh !important;
+  overflow: hidden !important;
+}
+</style>

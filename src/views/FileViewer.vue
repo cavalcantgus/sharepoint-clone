@@ -1,6 +1,6 @@
 <template>
-  <div class="viewer-container ga-3">
-    <div class="viewer-content pa-2">
+  <div class="viewer-container">
+    <div class="viewer-content px-2 d-flex align-center">
       <!-- Loading -->
       <div v-if="loading" class="d-flex justify-center align-center fill-height">
         <v-progress-circular indeterminate color="primary" />
@@ -36,11 +36,11 @@
         <v-btn color="primary" @click="download">Baixar arquivo</v-btn>
       </div>
     </div>
+    <CommentSheet :modelValue="openModal" :fileId="fileId" @update:modelValue="openModal = $event" />
+    <InfoDetails :modelValue="openDetails" :file="file" :fileExt="fileExt" @update:modelValue="openDetails = $event"
+      :fileType="fileType" />
+      <div class="viewer-footer py-2" style="border-top: 1px solid #ccc; background-color: #67921E;">
 
-
-    <v-footer
-      style="border-top: 1px solid #ccc ;background-color: #67921E; position: fixed; bottom: 0; left: 0; right: 0;z-index: 100;"
-      class="py-2 border context-action pa-0 ma-0 ">
 
       <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #ffffff; ">
 
@@ -90,24 +90,65 @@
           <v-btn height="auto" icon variant="text">
             <v-icon size="x-large">mdi-dots-vertical</v-icon>
 
-            <v-menu activator="parent">
+            <v-menu offset="30" activator="parent">
               <v-list>
-                <v-list-item title="Detalhes" prepend-icon="mdi-information-slab-circle-outline"
-                  @click="openDetails = true" />
+                <v-list-item
+                  prepend-icon="mdi-information-slab-circle-outline"
+                  @click="openDetails = true"
+                  append-icon="mdi-chevron-right"
+                >
+                  <v-list-item-title class="font-weight-bold">Detalhes</v-list-item-title>
+
+                  <v-list-item-subtitle>
+                    Ver informações completas
+                  </v-list-item-subtitle>
+                </v-list-item>
 
                 <v-divider />
 
-                <v-list-item style="font-weight: bold;" title="Aprovar" prepend-icon="mdi-check-circle-outline"
-                  base-color="success" @click="moverArquivoParaAprovados()" />
+                <v-list-item class="" style="font-weight: bold;" prepend-icon="mdi-check-circle" append-icon="mdi-chevron-right"
+                  @click="moverArquivoParaAprovados()">
+                  <v-list-item-title class="font-weight-bold">Aprovar</v-list-item-title>
 
-                <v-list-item title="Reprovar" prepend-icon="mdi-close-circle-outline" base-color="error"
-                  @click="moverArquivoParaReprovados()" />
+                    <v-list-item-subtitle >
+                      Mover para aprovados
+                    </v-list-item-subtitle>
+
+                </v-list-item>
+
+
+                  <v-divider />
+
+                <v-list-item style="font-weight: bold;" prepend-icon="mdi-close-circle" append-icon="mdi-chevron-right"
+                  @click="moverArquivoParaReprovados()">
+                  <v-list-item-title class="font-weight-bold">Reprovar</v-list-item-title>
+
+                    <v-list-item-subtitle>
+                      Mover para reprovados
+                    </v-list-item-subtitle>
+                </v-list-item>
 
                 <v-divider />
 
-                <v-list-item title="Renomear" prepend-icon="mdi-pencil-outline" @click="rename" />
+                <v-list-item style="font-weight: bold;" prepend-icon="mdi-pencil-outline" append-icon="mdi-chevron-right"
+                  base-color="primary" @click="moverArquivoParaAprovados()">
+                  <v-list-item-title class="font-weight-bold">Renomear</v-list-item-title>
 
-                <v-list-item title="Excluir" prepend-icon="mdi-delete-outline" base-color="error" @click="deleteFile" />
+                    <v-list-item-subtitle>
+                      Alterar nome do arquivo
+                    </v-list-item-subtitle>
+                </v-list-item>
+
+                <v-divider />
+
+                <v-list-item style="font-weight: bold;" prepend-icon="mdi-trash-can-outline" append-icon="mdi-chevron-right"
+                  base-color="error" @click="moverArquivoParaAprovados()">
+                  <v-list-item-title class="font-weight-bold">Deletar</v-list-item-title>
+
+                    <v-list-item-subtitle>
+                      Remover arquivo permanentemente
+                    </v-list-item-subtitle>
+                </v-list-item>
               </v-list>
             </v-menu>
           </v-btn>
@@ -116,13 +157,9 @@
 
       </v-row>
 
-
-    </v-footer>
-
-    <CommentSheet :modelValue="openModal" :fileId="fileId" @update:modelValue="openModal = $event" />
-    <InfoDetails :modelValue="openDetails" :file="file" :fileExt="fileExt" @update:modelValue="openDetails = $event"
-      :fileType="fileType" />
+    </div>
   </div>
+
 </template>
 
 <script>
@@ -312,46 +349,47 @@ export default {
 </script>
 
 <style scoped>
-/* .viewer-container {
-    display: flex;
-    flex-direction: column;
-    height: 100dvh;
-    overflow: hidden;
-} */
-
-.viewer-content {
-  flex: 1;
-  overflow-y: scroll;
-  height: 100dvh;
-  display: flex;
-  padding-bottom: 120px;
-  flex-direction: column;
-  /* ← só o conteúdo rola */
-  /* ← espaço pra não ficar atrás da barra fixa */
+.viewer-footer {
+  flex-shrink: 0;
 }
 
-.viewer-content>div {
+.viewer-container {
   flex: 1;
-  /* ← faz a div crescer e preencher */
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.viewer-content {
+  border: 2px solid #222222;
+  background-color: #222222;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.viewer-content > div {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .viewer-image {
-  border-radius: 20px;
   max-width: 100%;
   max-height: 100%;
-  /* ← era calc(100vh - 80px) */
   object-fit: contain;
-  /* ← descomenta isso */
 }
 
 .viewer-video {
   max-width: 100%;
-  max-height: calc(100vh - 80px);
+  max-height: 100%;
 }
 
 .viewer-iframe {
   width: 100%;
-  height: calc(100vh - 64px);
+  height: 100%;
   border: none;
 }
 
