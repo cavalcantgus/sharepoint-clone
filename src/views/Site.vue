@@ -1,8 +1,8 @@
 <template>
-  <v-container style="background-color: #67921E; height: 100vh;">
+  <v-container class="pb-0" style="background-color: #67921E; height: 100dvh; overflow: scroll;">
 
     <!-- Visualização Mobile -->
-    <v-sheet style="background-color: #67921E;" class="my-4" v-if="isMobile" >
+    <v-sheet style="background-color: #67921E; " class="my-4" v-if="isMobile" >
 
        <v-row class="d-flex flex-row justify-space-between justify-center mb-8">
         <v-col cols="auto" class="d-flex text-white flex-column ">
@@ -17,7 +17,7 @@
         </v-col>
       </v-row>
     </v-sheet>
-    <v-sheet v-if="isMobile"  style="background-color: #fff; border-top-left-radius: 34px; border-top-right-radius: 34px;" class="my-4 mx-n4 h-100" >
+    <v-sheet v-if="isMobile"  style="background-color: #fff; height: auto; flex: 1; border-top-left-radius: 34px; border-top-right-radius: 34px; margin: 0;" class="my-4 mx-n4" >
 
       <!-- Botões de ação e contagem -->
       <v-row class="px-6 py-4 d-flex justify-space-between justify-center " dense>
