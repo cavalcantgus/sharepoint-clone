@@ -18,8 +18,15 @@
 
       <!-- Vídeo -->
       <div v-else-if="fileType === 'video'" class="d-flex justify-center align-center fill-height">
-        <video :src="blobUrl" controls class="viewer-video" />
-      </div>
+  <div class="text-center">
+    <v-icon size="64" color="primary">mdi-video</v-icon>
+    <p class="mt-4 text-body-1">O vídeo será aberto em uma nova aba.</p>
+    <v-btn color="primary" :href="videoUrl" target="_blank">
+      <v-icon left>mdi-open-in-new</v-icon>
+      Abrir vídeo
+    </v-btn>
+  </div>
+</div>
 
       <!-- PDF -->
       <iframe v-else-if="fileType === 'pdf'" :src="blobUrl" class="viewer-iframe" />
@@ -39,7 +46,7 @@
     <CommentSheet :modelValue="openModal" :fileId="fileId" @update:modelValue="openModal = $event" />
     <InfoDetails :modelValue="openDetails" :file="file" :fileExt="fileExt" @update:modelValue="openDetails = $event"
       :fileType="fileType" />
-      <div class="viewer-footer py-2" style="border-top: 1px solid #ccc; background-color: #67921E;">
+    <div class="viewer-footer py-2" style="border-top: 1px solid #ccc; background-color: #67921E;">
 
 
       <v-row class="w-100 ma-0 align-center justify-center pa-2" style="color: #ffffff; ">
@@ -92,11 +99,8 @@
 
             <v-menu offset="30" activator="parent">
               <v-list>
-                <v-list-item
-                  prepend-icon="mdi-information-slab-circle-outline"
-                  @click="openDetails = true"
-                  append-icon="mdi-chevron-right"
-                >
+                <v-list-item prepend-icon="mdi-information-slab-circle-outline" @click="openDetails = true"
+                  append-icon="mdi-chevron-right">
                   <v-list-item-title class="font-weight-bold">Detalhes</v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -106,48 +110,48 @@
 
                 <v-divider />
 
-                <v-list-item class="" style="font-weight: bold;" prepend-icon="mdi-check-circle" append-icon="mdi-chevron-right"
-                  @click="moverArquivoParaAprovados()">
+                <v-list-item class="" style="font-weight: bold;" prepend-icon="mdi-check-circle"
+                  append-icon="mdi-chevron-right" @click="moverArquivoParaAprovados()">
                   <v-list-item-title class="font-weight-bold">Aprovar</v-list-item-title>
 
-                    <v-list-item-subtitle >
-                      Mover para aprovados
-                    </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    Mover para aprovados
+                  </v-list-item-subtitle>
 
                 </v-list-item>
 
 
-                  <v-divider />
+                <v-divider />
 
                 <v-list-item style="font-weight: bold;" prepend-icon="mdi-close-circle" append-icon="mdi-chevron-right"
                   @click="moverArquivoParaReprovados()">
                   <v-list-item-title class="font-weight-bold">Reprovar</v-list-item-title>
 
-                    <v-list-item-subtitle>
-                      Mover para reprovados
-                    </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    Mover para reprovados
+                  </v-list-item-subtitle>
                 </v-list-item>
 
                 <v-divider />
 
-                <v-list-item style="font-weight: bold;" prepend-icon="mdi-pencil-outline" append-icon="mdi-chevron-right"
-                  base-color="primary" @click="moverArquivoParaAprovados()">
+                <v-list-item style="font-weight: bold;" prepend-icon="mdi-pencil-outline"
+                  append-icon="mdi-chevron-right" base-color="primary" @click="moverArquivoParaAprovados()">
                   <v-list-item-title class="font-weight-bold">Renomear</v-list-item-title>
 
-                    <v-list-item-subtitle>
-                      Alterar nome do arquivo
-                    </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    Alterar nome do arquivo
+                  </v-list-item-subtitle>
                 </v-list-item>
 
                 <v-divider />
 
-                <v-list-item style="font-weight: bold;" prepend-icon="mdi-trash-can-outline" append-icon="mdi-chevron-right"
-                  base-color="error" @click="moverArquivoParaAprovados()">
+                <v-list-item style="font-weight: bold;" prepend-icon="mdi-trash-can-outline"
+                  append-icon="mdi-chevron-right" base-color="error" @click="moverArquivoParaAprovados()">
                   <v-list-item-title class="font-weight-bold">Deletar</v-list-item-title>
 
-                    <v-list-item-subtitle>
-                      Remover arquivo permanentemente
-                    </v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    Remover arquivo permanentemente
+                  </v-list-item-subtitle>
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -187,6 +191,7 @@ export default {
     textContent: null,
     fileId: null,
     file: null,
+    videoUrl: null,
     from: null,
     serverRelativeUrl: null,
     varFileType: null,
@@ -277,13 +282,26 @@ export default {
     async loadFile() {
       this.loading = true;
       this.error = null;
-
       try {
         const token = await authService.acquireSharePointToken();
-
-        // monta a URL via API REST do SharePoint
-        // Lembrar de deixar dinâmico o nome do servidor e site no futuro, por enquanto tá hardcoded
         const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')/$value`;
+
+        if (this.fileType === 'video') {
+  const token = await authService.acquireSharePointToken();
+  const infoUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')?$select=UniqueId`;
+
+  const resp = await fetch(infoUrl, {
+    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json;odata=verbose' }
+  });
+  const data = await resp.json();
+  const uniqueId = data.d?.UniqueId;
+
+  window.open(
+    `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_layouts/15/embed.aspx?UniqueId=${uniqueId}`,
+    '_blank'
+  );
+  return;
+}
 
         const response = await fetch(apiUrl, {
           headers: {
@@ -291,7 +309,7 @@ export default {
             Accept: 'application/json;odata=verbose'
           }
         });
-        console.log('Resposta da API:', response);
+
         if (!response.ok) throw new Error(`Erro ${response.status}`);
 
         if (this.fileType === 'text') {
@@ -300,12 +318,54 @@ export default {
           const blob = await response.blob();
           this.blobUrl = URL.createObjectURL(blob);
         }
-
       } catch (err) {
         this.error = `Não foi possível carregar o arquivo. ${err.message}`;
       } finally {
         this.loading = false;
       }
+    },
+
+    async loadVideoStream(apiUrl, token) {
+      const mediaSource = new MediaSource();
+      this.blobUrl = URL.createObjectURL(mediaSource);
+
+      mediaSource.addEventListener('sourceopen', async () => {
+        try {
+          const response = await fetch(apiUrl, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: 'application/json;odata=verbose'
+            }
+          });
+
+          if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+          // Detecta o mime type (ajuste se necessário)
+          const mimeType = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+          const sourceBuffer = mediaSource.addSourceBuffer(mimeType);
+
+          const reader = response.body.getReader();
+
+          const pump = async () => {
+            const { done, value } = await reader.read();
+            if (done) {
+              mediaSource.endOfStream();
+              return;
+            }
+            // Aguarda o buffer estar pronto antes de adicionar mais dados
+            if (sourceBuffer.updating) {
+              await new Promise(resolve => sourceBuffer.addEventListener('updateend', resolve, { once: true }));
+            }
+            sourceBuffer.appendBuffer(value);
+            await new Promise(resolve => sourceBuffer.addEventListener('updateend', resolve, { once: true }));
+            pump();
+          };
+
+          pump();
+        } catch (err) {
+          this.error = `Erro no stream do vídeo: ${err.message}`;
+        }
+      });
     },
 
     async download() {
@@ -372,7 +432,7 @@ export default {
   overflow-y: auto;
 }
 
-.viewer-content > div {
+.viewer-content>div {
   flex: 1;
   display: flex;
   align-items: center;
