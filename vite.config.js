@@ -10,6 +10,11 @@ export default defineConfig({
     vue(),
     vueDevTools(),
   ],
+  server: {
+    port: 5173,
+    strictPort: true, // <- força não trocar a porta se estiver ocupada
+    host: true        // opcional: expõe na rede (0.0.0.0)
+  },
   base: '/sharepoint-clone/',
   resolve: {
     alias: {
