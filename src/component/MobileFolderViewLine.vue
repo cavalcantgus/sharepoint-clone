@@ -40,8 +40,30 @@
           </v-bottom-sheet>
 
         </v-col>
+
         <v-divider v-if="index < folderData.length - 1" />
       </template>
+      <v-col
+  v-if="folderData?.length < 1"
+  cols="12"
+  class="d-flex flex-column align-center justify-center text-center py-12"
+>
+  <v-icon
+    size="64"
+    color="grey-darken-1"
+    class="mb-4"
+  >
+    mdi-folder-open-outline
+  </v-icon>
+
+  <h3 class="text-h6 font-weight-medium mb-2">
+    Nenhum item encontrado
+  </h3>
+
+  <p class="text-medium-emphasis">
+    Esta pasta está vazia no momento.
+  </p>
+</v-col>
     </v-row>
   </v-container>
 </template>

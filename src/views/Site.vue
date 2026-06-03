@@ -2,22 +2,30 @@
   <v-container class="pb-0" style="background-color: #67921E; height: 100dvh; overflow: scroll;">
 
     <!-- Visualização Mobile -->
-    <v-sheet style="background-color: #67921E; " class="my-4" v-if="isMobile" >
+    <v-sheet style="background-color: #67921E; " class="my-4" v-if="isMobile">
 
-       <v-row class="d-flex flex-row justify-space-between justify-center mb-8">
+      <v-row class="d-flex flex-row justify-space-between justify-center mb-8">
         <v-col cols="auto" class="d-flex text-white flex-column ">
           <span class="text-headline-medium" style="color: #fff; font-weight: bold; line-height: 1; font-size: 2.5rem;">
             Pastas</span>
           <span>Organize e acesse seus arquivos</span>
         </v-col>
         <v-col cols="auto" class="">
-          <v-btn icon class="elevation-0 d-flex align-center" style="color: #fff; background-color: #1E2B0980;">
+          <v-btn @click="isSearchActive = !isSearchActive" icon class="elevation-0 d-flex align-center"
+            style="color: #fff; background-color: #1E2B0980;">
             <v-icon size="25">mdi-magnify</v-icon>
           </v-btn>
         </v-col>
+        <v-expand-transition>
+          <v-col v-if="isSearchActive" cols="12">
+            <v-text-field v-model="search" placeholder="Pesquise por pastas e arquivos..." elevation="0" rounded="xl" density="compact" variant="solo" />
+          </v-col>
+        </v-expand-transition>
       </v-row>
     </v-sheet>
-    <v-sheet v-if="isMobile"  style="background-color: #fff; height: auto; flex: 1; border-top-left-radius: 34px; border-top-right-radius: 34px; margin: 0 -16px;" class="pb-3 my-4 mx-n4" >
+    <v-sheet v-if="isMobile"
+      style="background-color: #fff; height: auto; flex: 1; border-top-left-radius: 34px; border-top-right-radius: 34px; margin: 0 -16px;"
+      class="pb-3 my-4 mx-n4">
 
       <!-- Botões de ação e contagem -->
       <v-row class="px-6 py-4 d-flex justify-space-between justify-center " dense>
@@ -30,12 +38,14 @@
         </v-col>
         <v-spacer></v-spacer>
         <v-col cols="auto">
-          <v-btn class="bg-transparent pa-0" :elevation="grid ? 1 : 0" min-width="0" width="36" height="36" @click="grid = !grid">
+          <v-btn class="bg-transparent pa-0" :elevation="grid ? 1 : 0" min-width="0" width="36" height="36"
+            @click="grid = !grid">
             <Icon color="#476415" width="25" icon="mingcute:grid-line" />
           </v-btn>
         </v-col>
         <v-col cols="auto">
-          <v-btn class="bg-transparent" :elevation="grid === false ? 1 : 0" min-width="0" width="36" height="36" @click="grid = false">
+          <v-btn class="bg-transparent" :elevation="grid === false ? 1 : 0" min-width="0" width="36" height="36"
+            @click="grid = false">
             <Icon color="#476415" width="25" icon="ic:baseline-format-list-bulleted"></Icon>
           </v-btn>
         </v-col>
@@ -54,9 +64,9 @@
 
       <v-row density="compact" class="px-4">
         <v-col>
-          <MobileFolderView v-if="grid" @handle-click="handleClick" :folderData="folderData">
+          <MobileFolderView v-if="grid" @handle-click="handleClick" :folderData="folderData" :search="search">
           </MobileFolderView>
-          <MobileFolderViewLine v-if="!grid" @handle-click="handleClick" :folderData="folderData">
+          <MobileFolderViewLine v-if="!grid" @handle-click="handleClick" :folderData="folderData" :search="search">
           </MobileFolderViewLine>
         </v-col>
       </v-row>
@@ -79,6 +89,8 @@ export default {
   },
   emits: ['handle-click'],
   data: () => ({
+    search: '',
+    isSearchActive: false,
     openMenuIndex: null,
     grid: true,
     timer: null,
@@ -149,14 +161,14 @@ export default {
   },
 
   methods: {
-    handleClick(item) {
+    async handleClick(item) {
       if (this.longPressed) {
         this.longPressed = false
         return
       }
 
       if (item.tipo === 'arquivo') {
-        this.$router.push({
+        await this.$router.push({
           name: 'FileViewer',
           query: {
             path: item.ServerRelativeUrl,
@@ -165,8 +177,9 @@ export default {
           },
         })
       } else {
-        this.fetchSubFolders(item.ServerRelativeUrl)
+        await this.fetchSubFolders(item.ServerRelativeUrl)
       }
+      this.search = '' // limpa busca ao clicar em um item
     },
     startLongPress(item, index) {
       this.longPressed = false
@@ -334,6 +347,34 @@ export default {
 </script>
 
 <style scoped>
+::v-deep(.v-input--density-compact .v-field--variant-solo) {
+  background-color: #517318E6;
+  color: #fff;
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition:
+    opacity 0.3s ease,
+    max-height 0.3s ease,
+    margin 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 80px;
+}
+
 .container-folders-mobile {
   height: 100vh;
   border-top: 12px solid #98d72d;

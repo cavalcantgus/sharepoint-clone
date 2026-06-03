@@ -1,8 +1,8 @@
 <template>
   <v-container class="pa-0">
     <v-row class="mt-6 bg-white">
-      <v-col class="elevation-1 rounded-lg pa-2" v-for="(item, index) in folderData" :key="index" cols="12" sm="4"
-        md="3" lg="2">
+      <v-col class="elevation-1 rounded-lg pa-2" v-for="(item, index) in filteredFolderData" :key="index" cols="12"
+        sm="4" md="3" lg="2">
 
         <!-- Bottom Sheet — aberto pelo toque longo via openMenuIndex -->
         <v-bottom-sheet :model-value="openMenuIndex === index"
@@ -80,6 +80,20 @@
         </v-bottom-sheet>
 
       </v-col>
+      <v-col v-if="folderData?.length < 1" cols="12"
+        class="d-flex flex-column align-center justify-center text-center py-12">
+        <v-icon size="64" color="grey-darken-1" class="mb-4">
+          mdi-folder-open-outline
+        </v-icon>
+
+        <h3 class="text-h6 font-weight-medium mb-2">
+          Nenhum item encontrado
+        </h3>
+
+        <p class="text-medium-emphasis">
+          Esta pasta está vazia no momento.
+        </p>
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -93,6 +107,11 @@ export default {
       type: Array,
       required: true
     },
+
+    search: {
+      type: String,
+      default: ''
+    }
   },
   emits: ['handle-click'],
 
@@ -108,6 +127,20 @@ export default {
       { label: 'Excluir', icon: 'mdi-delete', acao: (item) => { /* ... */ } },
     ],
   }),
+  computed: {
+    filteredFolderData() {
+      const search = this.search?.trim().toLowerCase()
+
+      if (!search) {
+        return this.folderData
+      }
+
+      return this.folderData.filter(item =>
+        item.Name?.toLowerCase().includes(search)
+      )
+    }
+  },
+
   methods: {
     handleClick(item) {
       // lógica do filho
