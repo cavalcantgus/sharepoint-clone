@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/sharepoint-clone/sw.js', { scope: '/sharepoint-clone/' })})}
