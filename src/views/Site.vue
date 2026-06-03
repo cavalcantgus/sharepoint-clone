@@ -17,7 +17,7 @@
           </v-btn>
         </v-col>
         <v-expand-transition>
-          <v-col v-if="isSearchActive" cols="12">
+          <v-col v-if="isSearchActive" cols="12" class="mb-n8">
             <v-text-field v-model="search" placeholder="Pesquise por pastas e arquivos..." elevation="0" rounded="xl" density="compact" variant="solo" />
           </v-col>
         </v-expand-transition>
@@ -352,6 +352,15 @@ export default {
   color: #fff;
 }
 
+::v-deep(.v-field) {
+  height: 30px !important;
+  min-height: 36px !important;
+}
+
+::v-deep(.v-text-field input) {
+  min-height: 20px !important;
+  font-size: 1.1rem !important;
+}
 .expand-enter-active,
 .expand-leave-active {
   transition:
