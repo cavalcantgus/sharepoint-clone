@@ -104,7 +104,7 @@
                 <v-divider />
 
                 <v-list-item class="" style="font-weight: bold;" prepend-icon="mdi-check-circle"
-                  append-icon="mdi-chevron-right" @click="moverArquivoParaAprovados()">
+                  append-icon="mdi-chevron-right" @click="reviewDialog = true">
                   <v-list-item-title class="font-weight-bold">Aprovar</v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -117,7 +117,7 @@
                 <v-divider />
 
                 <v-list-item style="font-weight: bold;" prepend-icon="mdi-close-circle" append-icon="mdi-chevron-right"
-                  @click="moverArquivoParaReprovados()">
+                  @click="reviewDialog = true">
                   <v-list-item-title class="font-weight-bold">Reprovar</v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -157,6 +157,20 @@
     </div>
   </div>
 
+  <v-dialog v-model="reviewDialog" max-width="400">
+    <v-card>
+      <v-card-title class="font-weight-bold">Adicionar revisão</v-card-title>
+      <v-card-text>
+        <v-text-field density="compact" variant="outlined" placeholder="Comente algo..."></v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-btn>
+          Enviar
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
 </template>
 
 <script>
@@ -176,6 +190,7 @@ export default {
     InfoDetails,
   },
   data: () => ({
+    reviewDialog: false,
     openModal: false,
     openDetails: false,
     loading: true,

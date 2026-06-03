@@ -1,0 +1,17 @@
+{
+  "name": "SharePoint Clone",
+  "short_name": "SP Clone",
+  "description": "Navegador de arquivos SharePoint",
+  "start_url": "/sharepoint-clone/",
+  "scope": "/sharepoint-clone/",
+  "display": "standalone",
+  "background_color": "#f3f2f1",
+  "theme_color": "#0078d4",
+  "icons": [
+    {
+      "src": "/sharepoint-clone/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

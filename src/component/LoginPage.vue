@@ -1,14 +1,14 @@
 <template>
   <!-- Alterado bg-white para bg-black para unificar o tema dark -->
   <v-container fluid class="fill-height d-flex justify-center align-center bg-black">
-    <v-row justify="center" class="w-100">
+    <v-row justify="center" class="w-100 d-flex justify-center align-center">
       <v-col cols="12" sm="8" md="4">
         <v-card class="pa-8 login-card d-flex flex-column ga-3" flat>
 
           <v-card-title class="text-center justify-center text-h5 font-weight-bold text-white pt-2">
             Bem-vindo de volta
           </v-card-title>
-          
+
           <v-card-subtitle class="text-center text-grey-lighten-1 pb-4 mt-n3">
             <span class="">Não tem cadastro? Fale com seu administrador</span>
           </v-card-subtitle>
@@ -54,7 +54,7 @@
               :disabled="loading"
               hide-details="auto"
             />
-            
+
             <v-card-actions class="pa-0 mt-4">
               <v-btn
                 type="submit"
