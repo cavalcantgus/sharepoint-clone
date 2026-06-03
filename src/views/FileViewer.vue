@@ -18,15 +18,8 @@
 
       <!-- Vídeo -->
       <div v-else-if="fileType === 'video'" class="d-flex justify-center align-center fill-height">
-  <div class="text-center">
-    <v-icon size="64" color="primary">mdi-video</v-icon>
-    <p class="mt-4 text-body-1">O vídeo será aberto em uma nova aba.</p>
-    <v-btn color="primary" :href="videoUrl" target="_blank">
-      <v-icon left>mdi-open-in-new</v-icon>
-      Abrir vídeo
-    </v-btn>
-  </div>
-</div>
+        <video :src="blobUrl" controls class="viewer-video" />
+      </div>
 
       <!-- PDF -->
       <iframe v-else-if="fileType === 'pdf'" :src="blobUrl" class="viewer-iframe" />
@@ -191,7 +184,6 @@ export default {
     textContent: null,
     fileId: null,
     file: null,
-    videoUrl: null,
     from: null,
     serverRelativeUrl: null,
     varFileType: null,
@@ -282,26 +274,13 @@ export default {
     async loadFile() {
       this.loading = true;
       this.error = null;
+
       try {
         const token = await authService.acquireSharePointToken();
+
+        // monta a URL via API REST do SharePoint
+        // Lembrar de deixar dinâmico o nome do servidor e site no futuro, por enquanto tá hardcoded
         const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')/$value`;
-
-        if (this.fileType === 'video') {
-  const token = await authService.acquireSharePointToken();
-  const infoUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')?$select=UniqueId`;
-
-  const resp = await fetch(infoUrl, {
-    headers: { Authorization: `Bearer ${token}`, Accept: 'application/json;odata=verbose' }
-  });
-  const data = await resp.json();
-  const uniqueId = data.d?.UniqueId;
-
-  window.open(
-    `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_layouts/15/embed.aspx?UniqueId=${uniqueId}`,
-    '_blank'
-  );
-  return;
-}
 
         const response = await fetch(apiUrl, {
           headers: {
@@ -309,63 +288,27 @@ export default {
             Accept: 'application/json;odata=verbose'
           }
         });
-
+        console.log('Resposta da API:', response);
         if (!response.ok) throw new Error(`Erro ${response.status}`);
 
         if (this.fileType === 'text') {
+          const token = await authService.acquireSharePointToken();
+          const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')/$value`;
+          const response = await fetch(apiUrl, {
+            headers: { Authorization: `Bearer ${token}`, Accept: 'application/json;odata=verbose' }
+          });
+          if (!response.ok) throw new Error(`Erro ${response.status}`);
           this.textContent = await response.text();
         } else {
-          const blob = await response.blob();
-          this.blobUrl = URL.createObjectURL(blob);
+          // Aponta direto pro proxy — sem fetch, sem blob
+         this.blobUrl = `https://sharepoint-proxy.apps.omarcosmaluf.com/video?path=${this.serverRelativeUrl}`;
         }
+
       } catch (err) {
         this.error = `Não foi possível carregar o arquivo. ${err.message}`;
       } finally {
         this.loading = false;
       }
-    },
-
-    async loadVideoStream(apiUrl, token) {
-      const mediaSource = new MediaSource();
-      this.blobUrl = URL.createObjectURL(mediaSource);
-
-      mediaSource.addEventListener('sourceopen', async () => {
-        try {
-          const response = await fetch(apiUrl, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: 'application/json;odata=verbose'
-            }
-          });
-
-          if (!response.ok) throw new Error(`Erro ${response.status}`);
-
-          // Detecta o mime type (ajuste se necessário)
-          const mimeType = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
-          const sourceBuffer = mediaSource.addSourceBuffer(mimeType);
-
-          const reader = response.body.getReader();
-
-          const pump = async () => {
-            const { done, value } = await reader.read();
-            if (done) {
-              mediaSource.endOfStream();
-              return;
-            }
-            // Aguarda o buffer estar pronto antes de adicionar mais dados
-            if (sourceBuffer.updating) {
-              await new Promise(resolve => sourceBuffer.addEventListener('updateend', resolve, { once: true }));
-            }
-            sourceBuffer.appendBuffer(value);
-            await new Promise(resolve => sourceBuffer.addEventListener('updateend', resolve, { once: true }));
-            pump();
-          };
-
-          pump();
-        } catch (err) {
-          this.error = `Erro no stream do vídeo: ${err.message}`;
-        }
-      });
     },
 
     async download() {
