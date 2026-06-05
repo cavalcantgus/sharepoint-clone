@@ -6,13 +6,12 @@ export const msalConfig = {
         redirectUri: import.meta.env.VITE_REDIRECT_URI, // Replace with your app's redirect URI
     },
     cache: {
-        cacheLocation: "sessionStorage", // Can also be 'localStorage'
+        cacheLocation: "localStorage", // Can also be 'localStorage'
         storeAuthStateInCookie: true, // Recommended for IE/Edge
     },
-    
+
 };
 
 export const loginRequest = {
     scopes: ["User.Read"], // Define the permissions your app requires
 };
-  

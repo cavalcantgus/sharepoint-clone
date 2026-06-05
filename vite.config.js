@@ -30,6 +30,44 @@ export default defineConfig(({ mode }) => {
           globIgnores: ['**/background.png'], // exclui a imagem grande
           navigateFallback: '/sharepoint-clone/index.html',
           navigateFallbackDenylist: [/^\/sharepoint-clone\/redirect\.html/],
+
+          navigationPreload: false,
+
+          runtimeCaching: [
+            {
+              // Fontes do Google
+              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'google-fonts-cache',
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              },
+            },
+            {
+              // Fontes estáticas
+              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'gstatic-fonts-cache',
+                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+              },
+            },
+            {
+              // Microsoft Graph API — lista de arquivos, drives, sites
+              urlPattern: /^https:\/\/graph\.microsoft\.com\/v1\.0\/.*/i,
+              handler: 'StaleWhileRevalidate', // serve cache, atualiza em background
+              options: {
+                cacheName: 'graph-api-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24, // 24h
+                },
+                cacheableResponse: {
+                  statuses: [0, 200], // cacheia só respostas OK
+                },
+              },
+            },
+          ],
         },
         devOptions: {
           enabled: false,

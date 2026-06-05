@@ -14,6 +14,7 @@ import { Icon } from '@iconify/vue';
 import { authService } from './auth/authService'; // ← importa o singleton
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
+import { registerSW } from 'virtual:pwa-register'
 
 const vuetify = createVuetify({
     components,
@@ -21,6 +22,13 @@ const vuetify = createVuetify({
     directives,
     icons: { defaultSet: 'mdi', aliases, sets: { mdi } },
 });
+
+registerSW({
+  onNeedRefresh() {},   // autoUpdate já cuida disso
+  onOfflineReady() {
+    console.log('App pronto para uso offline')
+  },
+})
 
 await authService._ready; // ← aguarda o handleRedirectPromise (já roda no construtor)
 

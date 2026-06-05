@@ -103,7 +103,7 @@
 
                 <v-divider />
 
-                <v-list-item class="" style="font-weight: bold;" prepend-icon="mdi-check-circle"
+                <v-list-item v-if="!isAprovadosPenultimaPasta" class="" style="font-weight: bold;" prepend-icon="mdi-check-circle"
                   append-icon="mdi-chevron-right" @click="reviewDialog = true">
                   <v-list-item-title class="font-weight-bold">Aprovar</v-list-item-title>
 
@@ -116,7 +116,7 @@
 
                 <v-divider />
 
-                <v-list-item style="font-weight: bold;" prepend-icon="mdi-close-circle" append-icon="mdi-chevron-right"
+                <v-list-item base-color="error" v-if="!isReprovadosPenultimaPasta" style="font-weight: bold;" prepend-icon="mdi-close-circle" append-icon="mdi-chevron-right"
                   @click="reviewDialog = true">
                   <v-list-item-title class="font-weight-bold">Reprovar</v-list-item-title>
 
@@ -207,6 +207,19 @@ export default {
   }),
 
   computed: {
+    isAprovadosPenultimaPasta() {
+      const partes = this.serverRelativeUrl.split('/').filter(Boolean);
+
+      return partes[partes.length - 2] === 'Aprovados';
+    },
+
+
+    isReprovadosPenultimaPasta() {
+      const partes = this.serverRelativeUrl.split('/').filter(Boolean);
+
+      return partes[partes.length - 2] === 'Reprovados';
+    },
+
     filePath() {
       return this.$route.query.path;
     },
