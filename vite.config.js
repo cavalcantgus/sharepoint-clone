@@ -26,11 +26,10 @@ export default defineConfig(({ mode }) => {
         registerType: 'autoUpdate',
         manifest: false,
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
-          globIgnores: ['**/background.png'], // exclui a imagem grande
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest,woff,woff2,ttf}'], // ← adiciona woff,woff2,ttf
+          globIgnores: ['**/background.png'],
           navigateFallback: '/sharepoint-clone/index.html',
           navigateFallbackDenylist: [/^\/sharepoint-clone\/redirect\.html/],
-
           navigationPreload: false,
 
           runtimeCaching: [
@@ -44,27 +43,23 @@ export default defineConfig(({ mode }) => {
               },
             },
             {
-              // Fontes estáticas
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
+              // SharePoint REST API
+              urlPattern: /^https:\/\/mmmalufconsultoria\.sharepoint\.com\/.*/i,
+              handler: 'StaleWhileRevalidate',
               options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheName: 'sharepoint-api-cache',
+                expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
             {
-              // Microsoft Graph API — lista de arquivos, drives, sites
+              // Microsoft Graph API
               urlPattern: /^https:\/\/graph\.microsoft\.com\/v1\.0\/.*/i,
-              handler: 'StaleWhileRevalidate', // serve cache, atualiza em background
+              handler: 'StaleWhileRevalidate',
               options: {
                 cacheName: 'graph-api-cache',
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24, // 24h
-                },
-                cacheableResponse: {
-                  statuses: [0, 200], // cacheia só respostas OK
-                },
+                expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
           ],
