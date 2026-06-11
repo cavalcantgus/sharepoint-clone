@@ -9,12 +9,12 @@
   "theme_color": "#0078d4",
   "icons": [
     {
-      "src": "/sharepoint-clone/icon-192x192.png",
+      "src": "/sharepoint-clone/icon-192x192 (2).png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/sharepoint-clone/icon-512x512.png",
+      "src": "/sharepoint-clone/icon-512x512 (2).png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
