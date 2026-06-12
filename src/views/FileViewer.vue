@@ -178,6 +178,7 @@ import { authService } from '../auth/authService';
 import CommentSheet from '@/component/CommentSheet.vue';
 import InfoDetails from '@/component/InfoDetails.vue';
 import { toast } from '@/plugins/toast.js'
+import { addToQueue } from '@/service/offlineQueue';
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
 const VIDEO_EXTS = ['mp4', 'webm', 'mov', 'avi', 'mkv'];
@@ -268,6 +269,24 @@ export default {
     },
 
     async moverArquivoParaAprovados() {
+
+      if (!navigator.onLine) {
+
+        await addToQueue({
+          type: 'approve',
+          fileUrl: this.file?.ServerRelativeUrl,
+          destino: this.aprovado
+        });
+
+        toast.warning(
+          "Sem internet. A aprovação foi adicionada à fila de sincronização."
+        );
+
+        this.$router.go(-1);
+
+        return;
+      }
+
       const baseUrl = "https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api";
       const nomeDoArquivo = this.file?.ServerRelativeUrl.split("/").pop();
       const token = await authService.acquireSharePointToken();
@@ -284,6 +303,23 @@ export default {
     },
 
     async moverArquivoParaReprovados() {
+      if (!navigator.onLine) {
+
+        await addToQueue({
+          type: 'reprove',
+          fileUrl: this.file?.ServerRelativeUrl,
+          destino: this.reprovado
+        });
+
+        toast.warning(
+          "Sem internet. A reprovação foi adicionada à fila de sincronização."
+        );
+
+        this.$router.go(-1);
+
+        return;
+      }
+
       const baseUrl = "https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api";
       const nomeDoArquivo = this.file?.ServerRelativeUrl.split("/").pop();
       const token = await authService.acquireSharePointToken();

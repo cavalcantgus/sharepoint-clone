@@ -15,6 +15,14 @@ import { authService } from './auth/authService'; // ← importa o singleton
 import Toast from 'vue-toastification';
 import 'vue-toastification/dist/index.css';
 import { registerSW } from 'virtual:pwa-register'
+import { processQueue } from './service/queueProcessor';
+
+window.addEventListener(
+  'online',
+  processQueue
+);
+
+processQueue();
 
 const vuetify = createVuetify({
     components,
