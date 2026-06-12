@@ -104,7 +104,7 @@
                 <v-divider />
 
                 <v-list-item v-if="!isAprovadosPenultimaPasta" class="" style="font-weight: bold;" prepend-icon="mdi-check-circle"
-                  append-icon="mdi-chevron-right" @click="reviewDialog = true">
+                  append-icon="mdi-chevron-right" @click="moverArquivoParaAprovados()">
                   <v-list-item-title class="font-weight-bold">Aprovar</v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -117,7 +117,7 @@
                 <v-divider />
 
                 <v-list-item base-color="error" v-if="!isReprovadosPenultimaPasta" style="font-weight: bold;" prepend-icon="mdi-close-circle" append-icon="mdi-chevron-right"
-                  @click="reviewDialog = true">
+                  @click="moverArquivoParaReprovados()">
                   <v-list-item-title class="font-weight-bold">Reprovar</v-list-item-title>
 
                   <v-list-item-subtitle>
