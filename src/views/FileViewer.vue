@@ -305,6 +305,7 @@ export default {
 
       try {
         const token = await authService.acquireSharePointToken();
+        console.log('Token adquirido:', token);
 
         // monta a URL via API REST do SharePoint
         // Lembrar de deixar dinâmico o nome do servidor e site no futuro, por enquanto tá hardcoded
