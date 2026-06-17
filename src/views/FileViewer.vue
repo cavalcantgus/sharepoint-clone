@@ -104,7 +104,7 @@
                 <v-divider />
 
                 <v-list-item v-if="!isAprovadosPenultimaPasta" class="" style="font-weight: bold;" prepend-icon="mdi-check-circle"
-                  append-icon="mdi-chevron-right" @click="moverArquivoParaAprovados()">
+                  append-icon="mdi-chevron-right" @click="reviewDialog = true">
                   <v-list-item-title class="font-weight-bold">Aprovar</v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -117,7 +117,7 @@
                 <v-divider />
 
                 <v-list-item base-color="error" v-if="!isReprovadosPenultimaPasta" style="font-weight: bold;" prepend-icon="mdi-close-circle" append-icon="mdi-chevron-right"
-                  @click="moverArquivoParaReprovados()">
+                  @click="reviewDialog = true">
                   <v-list-item-title class="font-weight-bold">Reprovar</v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -157,14 +157,32 @@
     </div>
   </div>
 
-  <v-dialog v-model="reviewDialog" max-width="400">
-    <v-card>
-      <v-card-title class="font-weight-bold">Adicionar revisão</v-card-title>
+  <v-dialog :v-model="reviewDialog.approve || reviewDialog.reprove" max-width="400">
+    <v-card class="">
+      <div class="d-flex flex-row align-center ga-2 pa-2">
+        <v-icon  size="22" class="pa-5" style="background-color: #67921E30; border-radius: 100%; color: #67921E">mdi-comment-text-multiple-outline</v-icon>
+        <div class="">
+          <v-card-title class="font-weight-bold">Adicionar revisão</v-card-title>
+          <v-card-subtitle class="text-grey-darken-4">Deixe um comentário sobre o arquivo</v-card-subtitle>
+        </div>
+      </div>
       <v-card-text>
-        <v-text-field density="compact" variant="outlined" placeholder="Comente algo..."></v-text-field>
+        <v-text-field density="default" variant="outlined" placeholder="Comente algo..."></v-text-field>
       </v-card-text>
-      <v-card-actions>
-        <v-btn>
+      <v-card-actions class="pa-3 d-flex justify-space-between" >
+        <div class="d-flex align-center">
+          <v-icon class="">
+            mdi-lightbulb-on-outline
+          </v-icon>
+          <span style="line-height: 1px;" class="text-title-small text-grey-darken-1 border">Seja claro e objetivo</span>
+        </div>
+        <v-spacer>
+
+        </v-spacer>
+        <v-btn style="border: 1px solid #ccc">
+          Cancelar
+        </v-btn>
+        <v-btn color="white" style="background-color: #1976D2;">
           Enviar
         </v-btn>
       </v-card-actions>
@@ -174,6 +192,7 @@
 </template>
 
 <script>
+import { getFileAsBlobUrl, isFileCached } from '@/service/fileCache.js';
 import { authService } from '../auth/authService';
 import CommentSheet from '@/component/CommentSheet.vue';
 import InfoDetails from '@/component/InfoDetails.vue';
@@ -191,7 +210,10 @@ export default {
     InfoDetails,
   },
   data: () => ({
-    reviewDialog: false,
+    reviewDialog: {
+      reprove: false,
+      approve: false,
+    },
     openModal: false,
     openDetails: false,
     loading: true,
@@ -336,45 +358,48 @@ export default {
     },
 
     async loadFile() {
-      this.loading = true;
-      this.error = null;
+  this.loading = true;
+  this.error = null;
 
+  try {
+    if (this.fileType === 'video') {
+      // Vídeo: proxy para streaming com range requests — não cacheia
+      this.blobUrl = `https://sharepoint-proxy.apps.omarcosmaluf.com/video?path=${this.serverRelativeUrl}`;
+      return;
+    }
+
+    if (this.fileType === 'text') {
+      const token = await authService.acquireSharePointToken();
+      const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')/$value`;
+      const response = await fetch(apiUrl, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json;odata=verbose' }
+      });
+      if (!response.ok) throw new Error(`Erro ${response.status}`);
+      this.textContent = await response.text();
+      return;
+    }
+
+    // PDF, imagem, doc, etc — cache manual via Cache API
+    const token = await authService.acquireSharePointToken();
+    this.blobUrl = await getFileAsBlobUrl(this.serverRelativeUrl, token);
+
+  } catch (err) {
+    // Fallback offline: tenta servir do cache sem precisar de token
+    if (!navigator.onLine && this.fileType !== 'video' && this.fileType !== 'text') {
       try {
-        const token = await authService.acquireSharePointToken();
-        console.log('Token adquirido:', token);
-
-        // monta a URL via API REST do SharePoint
-        // Lembrar de deixar dinâmico o nome do servidor e site no futuro, por enquanto tá hardcoded
-        const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')/$value`;
-
-        const response = await fetch(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json;odata=verbose'
-          }
-        });
-        console.log('Resposta da API:', response);
-        if (!response.ok) throw new Error(`Erro ${response.status}`);
-
-        if (this.fileType === 'text') {
-          const token = await authService.acquireSharePointToken();
-          const apiUrl = `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/getFileByServerRelativeUrl('${encodeURIComponent(this.serverRelativeUrl)}')/$value`;
-          const response = await fetch(apiUrl, {
-            headers: { Authorization: `Bearer ${token}`, Accept: 'application/json;odata=verbose' }
-          });
-          if (!response.ok) throw new Error(`Erro ${response.status}`);
-          this.textContent = await response.text();
-        } else {
-          // Aponta direto pro proxy — sem fetch, sem blob
-         this.blobUrl = `https://sharepoint-proxy.apps.omarcosmaluf.com/video?path=${this.serverRelativeUrl}`;
-        }
-
-      } catch (err) {
-        this.error = `Não foi possível carregar o arquivo. ${err.message}`;
-      } finally {
-        this.loading = false;
+        this.blobUrl = await getFileAsBlobUrl(this.serverRelativeUrl, null, { offlineOnly: true });
+        return;
+      } catch {
+        this.error = 'Arquivo não disponível offline.';
+        return;
       }
-    },
+    }
+
+    this.error = `Não foi possível carregar o arquivo. ${err.message}`;
+  } finally {
+    this.loading = false;
+  }
+},
 
     async download() {
       try {

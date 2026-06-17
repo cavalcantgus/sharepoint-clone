@@ -341,7 +341,9 @@ export default {
     if (this.$route.name === 'SiteDetails') {
       this.fetchSharePointFolder()
     }
-  }
+  },
+
+  
 }
 
 </script>
