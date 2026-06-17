@@ -104,7 +104,7 @@
                 <v-divider />
 
                 <v-list-item v-if="!isAprovadosPenultimaPasta" class="" style="font-weight: bold;" prepend-icon="mdi-check-circle"
-                  append-icon="mdi-chevron-right" @click="reviewDialog = true">
+                  append-icon="mdi-chevron-right" @click="reviewDialog.approve = true">
                   <v-list-item-title class="font-weight-bold">Aprovar</v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -117,7 +117,7 @@
                 <v-divider />
 
                 <v-list-item base-color="error" v-if="!isReprovadosPenultimaPasta" style="font-weight: bold;" prepend-icon="mdi-close-circle" append-icon="mdi-chevron-right"
-                  @click="reviewDialog = true">
+                  @click="reviewDialog.reprove = true">
                   <v-list-item-title class="font-weight-bold">Reprovar</v-list-item-title>
 
                   <v-list-item-subtitle>
@@ -157,7 +157,7 @@
     </div>
   </div>
 
-  <v-dialog :v-model="reviewDialog.approve || reviewDialog.reprove" max-width="400">
+  <v-dialog v-model="reviewDialogOpen" max-width="400">
     <v-card class="">
       <div class="d-flex flex-row align-center ga-2 pa-2">
         <v-icon  size="22" class="pa-5" style="background-color: #67921E30; border-radius: 100%; color: #67921E">mdi-comment-text-multiple-outline</v-icon>
@@ -167,7 +167,7 @@
         </div>
       </div>
       <v-card-text>
-        <v-text-field density="default" variant="outlined" placeholder="Comente algo..."></v-text-field>
+        <v-text-field v-model="reviewComment" density="default" variant="outlined" placeholder="Comente algo..."></v-text-field>
       </v-card-text>
       <v-card-actions class="pa-3 d-flex justify-space-between" >
         <div class="d-flex align-center">
@@ -182,7 +182,7 @@
         <v-btn style="border: 1px solid #ccc">
           Cancelar
         </v-btn>
-        <v-btn color="white" style="background-color: #1976D2;">
+        <v-btn @click="submit" color="white" style="background-color: #1976D2;">
           Enviar
         </v-btn>
       </v-card-actions>
@@ -198,6 +198,7 @@ import CommentSheet from '@/component/CommentSheet.vue';
 import InfoDetails from '@/component/InfoDetails.vue';
 import { toast } from '@/plugins/toast.js'
 import { addToQueue } from '@/service/offlineQueue';
+import axios from '../service/axios.js';
 
 const IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp'];
 const VIDEO_EXTS = ['mp4', 'webm', 'mov', 'avi', 'mkv'];
@@ -225,11 +226,16 @@ export default {
     from: null,
     serverRelativeUrl: null,
     varFileType: null,
+    reviewComment: '',
     aprovado: "/sites/ServidorGeraoBancria/Teste/Servidor Geração Bancária/Aprovados",
     reprovado: "/sites/ServidorGeraoBancria/Teste/Servidor Geração Bancária/Reprovados"
   }),
 
   computed: {
+    reviewDialogOpen() {
+      return this.reviewDialog.approve || this.reviewDialog.reprove;
+    },
+
     isAprovadosPenultimaPasta() {
       const partes = this.serverRelativeUrl.split('/').filter(Boolean);
 
@@ -262,6 +268,43 @@ export default {
   },
 
   methods: {
+
+    async submit() {
+      const text = this.reviewComment.trim()
+      if (!text || this.sending) return
+
+      this.sending = true
+
+      try {
+        const token = await authService.acquireSharePointToken()
+
+        await axios.create().post(
+          `https://mmmalufconsultoria.sharepoint.com/sites/ServidorGeraoBancria/_api/web/lists('b2365f70-d3a1-4f9f-94d0-321706bc96b8')/items(${this.fileId})/Comments`,
+          JSON.stringify({ text }),
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            transformRequest: [], // 👈 desativa qualquer transformação do axios
+          }
+        )
+
+        if(this.reviewDialog.approve) {
+          await this.moverArquivoParaAprovados();
+        } else if(this.reviewDialog.reprove) {
+          await this.moverArquivoParaReprovados();
+        }
+
+      } catch (err) {
+        console.error('Erro ao enviar comentário:', err)
+        this.reviewComment = text
+      } finally {
+        this.sending = false
+        this.reviewDialog.approve = false;
+        this.reviewDialog.reprove = false;
+      }
+    },
 
     // Busca de metadados do arquivo em visualização
     async fetchFileItem() {
